@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Irihi Technology</Authors>
+    <RepositoryUrl>https://github.com/rabbitism/Irihi.Dogma</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/rabbitism/Irihi.Dogma</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+</Project>

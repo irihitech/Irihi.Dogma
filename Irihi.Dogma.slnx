@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Packages.props"/>
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Irihi.Dogma/Irihi.Dogma.csproj"/>
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Irihi.Dogma.Tests/Irihi.Dogma.Tests.csproj"/>
+    <Project Path="test/Irihi.Dogma.HeadlessTests/Irihi.Dogma.HeadlessTests.csproj"/>
+  </Folder>
+  <Folder Name="/demo/">
+    <Project Path="demo/Irihi.Dogma.Demo/Irihi.Dogma.Demo.csproj"/>
+  </Folder>
+</Solution>

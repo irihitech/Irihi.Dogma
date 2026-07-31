@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageVersionOverrideEnabled>true</CentralPackageVersionOverrideEnabled>
+    <AvaloniaVersion>12.1.1</AvaloniaVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--src-->
+    <PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)"/>
+    <!--demo-->
+    <PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersion)"/>
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
+    <!--test-->
+    <PackageVersion Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
+    <PackageVersion Include="Avalonia.Headless.XUnit" Version="$(AvaloniaVersion)"/>
+    <PackageVersion Include="xunit" Version="2.9.0"/>
+    <PackageVersion Include="xunit.v3" Version="3.2.2"/>
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2"/>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1"/>
+    <PackageVersion Include="coverlet.collector" Version="6.0.2"/>
+  </ItemGroup>
+</Project>
