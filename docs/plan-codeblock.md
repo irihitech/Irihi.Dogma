@@ -41,7 +41,7 @@
 CodeBlock : TemplatedControl
   string      Code              // 待展示源码
   CodeLanguage Language         // Axaml | CSharp
-  CodeTheme   Theme             // Dark（默认）| Light
+  CodeTheme   ColorScheme       // Dark（默认）| Light（改名：避免与 Avalonia 内置 Theme 冲突）
   bool        ShowLineNumbers   // 默认 true
   bool        ShowCopyButton    // 默认 true
 ```
