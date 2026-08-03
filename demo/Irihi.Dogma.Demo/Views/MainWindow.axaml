@@ -22,10 +22,10 @@
             <StackPanel Spacing="12">
                 <TextBlock Text="AXAML" FontWeight="Bold" FontSize="16"/>
                 <cb:CodeBlock Code="{Binding SampleAxaml}"
-                              Language="Axaml"/>
+                              Language="Axaml" MaxHeight="200"/>
                 <TextBlock Text="C#" FontWeight="Bold" FontSize="16"/>
                 <cb:CodeBlock Code="{Binding SampleCSharp}"
-                              Language="CSharp"/>
+                              Language="CSharp" MaxHeight="200"/>
             </StackPanel>
         </ScrollViewer>
     </DockPanel>
