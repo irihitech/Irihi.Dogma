@@ -1,11 +1,32 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Irihi.Dogma.Demo.ViewModels"
+        xmlns:cb="using:Irihi.Dogma.Controls"
         x:Class="Irihi.Dogma.Demo.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="Irihi.Dogma Demo"
-        Width="800" Height="600">
-    <TextBlock Text="{Binding Greeting}"
-               HorizontalAlignment="Center"
-               VerticalAlignment="Center"/>
+        Title="Irihi.Dogma Demo — CodeBlock"
+        RequestedThemeVariant="{Binding RequestedTheme}"
+        Width="1000" Height="760">
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Top"
+                    Orientation="Horizontal"
+                    Spacing="12"
+                    Margin="0,0,0,8">
+            <TextBlock Text="Irihi.Dogma · CodeBlock"
+                       FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+            <ToggleButton Content="Light"
+                          IsChecked="{Binding UseLightTheme}"
+                          VerticalAlignment="Center"/>
+        </StackPanel>
+        <ScrollViewer>
+            <StackPanel Spacing="12">
+                <TextBlock Text="AXAML" FontWeight="Bold" FontSize="16"/>
+                <cb:CodeBlock Code="{Binding SampleAxaml}"
+                              Language="Axaml" MaxHeight="200"/>
+                <TextBlock Text="C#" FontWeight="Bold" FontSize="16"/>
+                <cb:CodeBlock Code="{Binding SampleCSharp}"
+                              Language="CSharp" MaxHeight="200"/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
 </Window>

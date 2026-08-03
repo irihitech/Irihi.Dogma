@@ -4,5 +4,6 @@
              RequestedThemeVariant="Default">
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://Irihi.Dogma/CodeBlock/CodeBlock.axaml"/>
     </Application.Styles>
 </Application>
