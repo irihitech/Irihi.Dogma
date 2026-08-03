@@ -5,15 +5,29 @@
         x:Class="Irihi.Dogma.Demo.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="Irihi.Dogma Demo — CodeBlock"
-        Width="900" Height="700">
-    <ScrollViewer>
-        <StackPanel Spacing="12" Margin="12">
-            <TextBlock Text="AXAML" FontWeight="Bold" FontSize="16"/>
-            <cb:CodeBlock Code="{Binding SampleAxaml}"
-                          Language="Axaml"/>
-            <TextBlock Text="C#" FontWeight="Bold" FontSize="16"/>
-            <cb:CodeBlock Code="{Binding SampleCSharp}"
-                          Language="CSharp"/>
+        Width="1000" Height="760">
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Top"
+                    Orientation="Horizontal"
+                    Spacing="12"
+                    Margin="0,0,0,8">
+            <TextBlock Text="Irihi.Dogma · CodeBlock"
+                       FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+            <ToggleButton Content="Light"
+                          IsChecked="{Binding UseLightTheme}"
+                          VerticalAlignment="Center"/>
         </StackPanel>
-    </ScrollViewer>
+        <ScrollViewer>
+            <StackPanel Spacing="12">
+                <TextBlock Text="AXAML" FontWeight="Bold" FontSize="16"/>
+                <cb:CodeBlock Code="{Binding SampleAxaml}"
+                              Language="Axaml"
+                              ColorScheme="{Binding CodeScheme}"/>
+                <TextBlock Text="C#" FontWeight="Bold" FontSize="16"/>
+                <cb:CodeBlock Code="{Binding SampleCSharp}"
+                              Language="CSharp"
+                              ColorScheme="{Binding CodeScheme}"/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
 </Window>

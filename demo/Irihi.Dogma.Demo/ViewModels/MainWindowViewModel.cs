@@ -1,10 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Irihi.Dogma.Controls;
 
 namespace Irihi.Dogma.Demo.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject
 {
-    /// <summary>示例 AXAML 源码（演示用，覆盖元素/属性/绑定/MarkupExtension/注释）。</summary>
+    /// <summary>是否使用亮色主题（演示 <see cref="CodeBlock.ColorScheme"/>）。</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CodeScheme))]
+    private bool _useLightTheme;
+
+    public CodeTheme CodeScheme => UseLightTheme ? CodeTheme.Light : CodeTheme.Dark;
+
+    /// <summary>示例 AXAML 源码（覆盖元素/属性/绑定/MarkupExtension/嵌套扩展/注释）。</summary>
     public string SampleAxaml { get; } = """
         <Window xmlns="https://github.com/avaloniaui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -13,6 +21,11 @@ public partial class MainWindowViewModel : ObservableObject
                 x:DataType="vm:MainWindowViewModel"
                 Title="Irihi.Dogma Demo" Width="900" Height="700">
             <!-- 主界面 -->
+            <Window.Styles>
+                <Style Selector="Button">
+                    <Setter Property="CornerRadius" Value="4"/>
+                </Style>
+            </Window.Styles>
             <ScrollViewer>
                 <StackPanel Spacing="12" Margin="12">
                     <TextBlock Text="{Binding Greeting}"
@@ -20,29 +33,42 @@ public partial class MainWindowViewModel : ObservableObject
                     <Button Content="Click me"
                             Command="{Binding GreetCommand}"
                             IsVisible="{Binding !IsBusy}"/>
+                    <TextBlock Text="{Binding Path=SampleAxaml, Mode=OneWay}"/>
                 </StackPanel>
             </ScrollViewer>
         </Window>
         """;
 
-    /// <summary>示例 C# 源码（演示用，覆盖关键字/注释/字符串/插值/数字）。</summary>
+    /// <summary>示例 C# 源码（覆盖关键字/类型名/插值字符串/verbatim 字符串/region/注释）。</summary>
     public string SampleCSharp { get; } = """
         using System;
+        using System.Collections.Generic;
 
         namespace Irihi.Dogma.Demo;
 
-        /// <summary>示例服务。</summary>
+        /// <summary>示例服务：展示代码高亮。</summary>
         public sealed class Greeter
         {
             private const string Prefix = "Hello";
 
-            // 返回问候语
-            public string Greet(string name, int times)
+            // 泛型集合 + 插值字符串
+            public List<string> Greet(string name, int times)
             {
-                var message = $"{Prefix}, {name}! x{times}";
-                Console.WriteLine(message); // 输出
-                return message;
+                var list = new List<string>();
+                for (var i = 0; i < times; i++)
+                {
+                    var message = $"{Prefix}, {name}! #{i}";
+                    Console.WriteLine(message); // 输出问候
+                    list.Add(message);
+                }
+                return list;
             }
+
+            public string RawPath => @"C:\tmp\demo\path";
+
+            #region 反射工具
+            public static Type TypeOf() => typeof(Greeter);
+            #endregion
         }
         """;
 }

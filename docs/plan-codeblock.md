@@ -1,6 +1,6 @@
 # 计划：CodeBlock 代码高亮控件（零外部依赖）
 
-> 状态：Phase 1-4 已完成 / 分支：`feature/code-highlight-displayer`
+> 状态：Phase 1-5 全部完成 / 分支：`feature/code-highlight-displayer`
 > 日期：2026-07-31
 
 ## 背景与目标
@@ -105,10 +105,11 @@ demo/Irihi.Dogma.Demo/              // MainWindow 展示 AXAML + C# 源码
    - Headless 测试：Inlines 数量/拼接文本、行号文本、复制按钮点击不抛异常、Run classes、ColorScheme 切换
    - 附：C# 类型名高亮（TokenKind.Type + CSharpTokenClassifier 启发式后处理）已并入
 
-5. **demo 完善与全量验证**
-   - MainWindow 展示真实 AXAML 源码 + C# 源码（含注释/字符串/插值），暗色主题
-   - `dotnet build`（解决方案）+ `dotnet test`（两个测试项目）全绿
-   - 视觉核对：高亮正确、拖选复制、Ctrl+C、右键复制、复制按钮、行号对齐
+5. **demo 完善与全量验证** ✅
+   - MainWindow 展示 AXAML 源码 + C# 源码（注释/字符串/插值/泛型/region/verbatim），默认暗色主题
+   - 顶部 Light ToggleButton 演示 `ColorScheme` 亮/暗切换
+   - `dotnet build`（解决方案）0 警告 0 错误 + `dotnet test` 全绿（单元 38 + headless 10）
+   - 视觉核对（用户运行 demo）：高亮、拖选复制、Ctrl+C、右键复制、复制按钮、行号对齐
 
 ## 风险备注
 
