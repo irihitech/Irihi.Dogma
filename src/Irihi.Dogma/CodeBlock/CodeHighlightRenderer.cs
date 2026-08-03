@@ -26,7 +26,7 @@ public static class CodeHighlightRenderer
         return inlines;
     }
 
-    /// <summary>为单个 token 创建 Run。</summary>
+    /// <summary>为单个 token 创建 Run（附 token-* 样式类，供 XAML 覆盖配色）。</summary>
     public static Run CreateRun(CodeToken token, CodePalette palette)
     {
         var run = new Run { Text = token.Text };
@@ -35,6 +35,10 @@ public static class CodeHighlightRenderer
         {
             run.FontWeight = FontWeight.Bold;
         }
+
+        // 例如 token-keyword / token-string / token-markupextensionbrace，
+        // 用户可在 XAML 中通过样式选择器 .token-keyword { Foreground: ... } 覆盖。
+        run.Classes.Add("token-" + token.Kind.ToString().ToLowerInvariant());
 
         return run;
     }

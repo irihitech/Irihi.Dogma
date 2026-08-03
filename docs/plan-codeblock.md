@@ -1,6 +1,6 @@
 # 计划：CodeBlock 代码高亮控件（零外部依赖）
 
-> 状态：待批准 / 分支：`feature/code-highlight-displayer`
+> 状态：Phase 1-4 已完成 / 分支：`feature/code-highlight-displayer`
 > 日期：2026-07-31
 
 ## 背景与目标
@@ -98,11 +98,12 @@ demo/Irihi.Dogma.Demo/              // MainWindow 展示 AXAML + C# 源码
    - 注释 `//`、`/* */`、`///`（单独类别）、预处理指令 `#if/#region`、运算符/标点分类
    - 单元测试：round-trip + 类型断言
 
-4. **行号、复制按钮与主题整合**
+4. **行号、复制按钮与主题整合** ✅
    - 行号栏：按 `Code.Split('\n')` 生成 `1..N`，与代码同字体/字号/LineHeight 对齐，同 ScrollViewer 内同步滚动
    - 复制按钮：`TopLevel.GetTopLevel` + `ClipboardExtensions.SetTextAsync(Code)`，短暂"已复制"反馈
-   - 主题：`Theme` 切换对应 `CodePalette` 重建 Run；Run 附带 `token-*` Classes 供 XAML 样式覆盖
-   - Headless 测试：Inlines 数量/拼接文本、行号文本、复制按钮点击不抛异常
+   - 主题：`ColorScheme` 切换对应 `CodePalette` 重建 Run；Run 附带 `token-*` Classes 供 XAML 样式覆盖
+   - Headless 测试：Inlines 数量/拼接文本、行号文本、复制按钮点击不抛异常、Run classes、ColorScheme 切换
+   - 附：C# 类型名高亮（TokenKind.Type + CSharpTokenClassifier 启发式后处理）已并入
 
 5. **demo 完善与全量验证**
    - MainWindow 展示真实 AXAML 源码 + C# 源码（含注释/字符串/插值），暗色主题

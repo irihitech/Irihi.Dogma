@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
@@ -92,5 +93,64 @@ public class CodeBlockTests
         multiText.Measure(Size.Infinity);
 
         Assert.True(multiText.DesiredSize.Height > singleText.DesiredSize.Height);
+    }
+
+    [AvaloniaFact]
+    public void Runs_Carry_Token_Classes()
+    {
+        var block = new CodeBlock { Code = "public class Foo", Language = CodeLanguage.CSharp };
+        var window = new Window { Content = block };
+        window.Show();
+
+        var text = block.GetVisualDescendants().OfType<SelectableTextBlock>().First();
+        var runs = text.Inlines!.OfType<Run>().ToList();
+
+        var keyword = runs.First(r => r.Text == "public");
+        Assert.Contains("token-keyword", keyword.Classes);
+
+        var type = runs.First(r => r.Text == "Foo");
+        Assert.Contains("token-type", type.Classes);
+
+        var identifier = runs.First(r => r.Text == "class");
+        // class 是关键字（也带 token-keyword），此处验证 Foo 的类别是 token-type 即可
+        Assert.DoesNotContain("token-type", keyword.Classes);
+    }
+
+    [AvaloniaFact]
+    public void ColorScheme_Switch_Updates_Background_And_Selection()
+    {
+        var block = new CodeBlock { Code = "x", ColorScheme = CodeTheme.Dark };
+        var window = new Window { Content = block };
+        window.Show();
+
+        var container = block.GetVisualDescendants().OfType<Border>()
+            .First(b => b.Name == "PART_Container");
+        var text = block.GetVisualDescendants().OfType<SelectableTextBlock>().First();
+
+        Assert.Equal(CodePalette.Dark.Background, container.Background);
+        Assert.Equal(CodePalette.Dark.Selection, text.SelectionBrush);
+
+        block.ColorScheme = CodeTheme.Light;
+        Assert.Equal(CodePalette.Light.Background, container.Background);
+        Assert.Equal(CodePalette.Light.Selection, text.SelectionBrush);
+    }
+
+    [AvaloniaFact]
+    public void ColorScheme_Switch_Rebuilds_Inlines_With_New_Palette()
+    {
+        var block = new CodeBlock { Code = "public class Foo", Language = CodeLanguage.CSharp, ColorScheme = CodeTheme.Dark };
+        var window = new Window { Content = block };
+        window.Show();
+
+        var text = block.GetVisualDescendants().OfType<SelectableTextBlock>().First();
+        var darkKeyword = text.Inlines!.OfType<Run>().First(r => r.Text == "public");
+        var darkColor = darkKeyword.Foreground;
+
+        block.ColorScheme = CodeTheme.Light;
+        var lightKeyword = text.Inlines!.OfType<Run>().First(r => r.Text == "public");
+
+        Assert.NotEqual(darkColor, lightKeyword.Foreground);
+        // round-trip 保持
+        Assert.Equal("public class Foo", text.Inlines!.Text);
     }
 }
