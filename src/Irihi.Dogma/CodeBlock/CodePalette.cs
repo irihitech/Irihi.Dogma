@@ -59,6 +59,7 @@ public sealed class CodePalette
         tokenBrushes: new Dictionary<TokenKind, IBrush>
         {
             [TokenKind.Keyword] = Brush.Parse("#569CD6"),
+            [TokenKind.Type] = Brush.Parse("#4EC9B0"),
             [TokenKind.Number] = Brush.Parse("#B5CEA8"),
             [TokenKind.String] = Brush.Parse("#CE9178"),
             [TokenKind.Char] = Brush.Parse("#CE9178"),
@@ -86,6 +87,7 @@ public sealed class CodePalette
         tokenBrushes: new Dictionary<TokenKind, IBrush>
         {
             [TokenKind.Keyword] = Brush.Parse("#0000FF"),
+            [TokenKind.Type] = Brush.Parse("#267F99"),
             [TokenKind.Number] = Brush.Parse("#098658"),
             [TokenKind.String] = Brush.Parse("#A31515"),
             [TokenKind.Char] = Brush.Parse("#A31515"),

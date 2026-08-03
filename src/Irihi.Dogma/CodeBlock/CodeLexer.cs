@@ -16,7 +16,7 @@ public static class CodeLexer
     public static IReadOnlyList<CodeToken> Tokenize(string code, CodeLanguage language) => language switch
     {
         CodeLanguage.Axaml => AxamlLexer.Tokenize(code),
-        CodeLanguage.CSharp => CSharpLexer.Tokenize(code),
+        CodeLanguage.CSharp => CSharpTokenClassifier.Classify(CSharpLexer.Tokenize(code)),
         _ => [new CodeToken(TokenKind.Text, code)],
     };
 }

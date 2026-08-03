@@ -14,6 +14,9 @@ public enum TokenKind
     /// <summary>语言关键字（加粗）</summary>
     Keyword,
 
+    /// <summary>类型名 / 类名（C# 启发式识别）</summary>
+    Type,
+
     /// <summary>数字字面量</summary>
     Number,
 
