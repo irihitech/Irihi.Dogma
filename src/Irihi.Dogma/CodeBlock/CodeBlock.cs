@@ -21,10 +21,6 @@ public class CodeBlock : TemplatedControl
     public static readonly StyledProperty<CodeLanguage> LanguageProperty =
         AvaloniaProperty.Register<CodeBlock, CodeLanguage>(nameof(Language), CodeLanguage.Axaml);
 
-    /// <summary>配色方案（注意：与 Avalonia 内置 Theme/ThemeVariant 无关联）。</summary>
-    public static readonly StyledProperty<CodeTheme> ColorSchemeProperty =
-        AvaloniaProperty.Register<CodeBlock, CodeTheme>(nameof(ColorScheme), CodeTheme.Dark);
-
     /// <summary>是否显示行号。</summary>
     public static readonly StyledProperty<bool> ShowLineNumbersProperty =
         AvaloniaProperty.Register<CodeBlock, bool>(nameof(ShowLineNumbers), true);
@@ -32,6 +28,14 @@ public class CodeBlock : TemplatedControl
     /// <summary>是否显示"复制全部"按钮。</summary>
     public static readonly StyledProperty<bool> ShowCopyButtonProperty =
         AvaloniaProperty.Register<CodeBlock, bool>(nameof(ShowCopyButton), true);
+
+    /// <summary>
+    /// 调色板：为 null 时按 <see cref="StyledElement.ActualThemeVariant"/> 自动选择内建
+    /// <see cref="CodePalette.Dark"/> 或 <see cref="CodePalette.Light"/>；
+    /// 显式赋值后使用自定义 palette（不再随主题切换）。
+    /// </summary>
+    public static readonly StyledProperty<CodePalette?> PaletteProperty =
+        AvaloniaProperty.Register<CodeBlock, CodePalette?>(nameof(Palette));
 
     private Border? _container;
     private SelectableTextBlock? _codeText;
@@ -51,10 +55,10 @@ public class CodeBlock : TemplatedControl
         set => SetValue(LanguageProperty, value);
     }
 
-    public CodeTheme ColorScheme
+    public CodePalette? Palette
     {
-        get => GetValue(ColorSchemeProperty);
-        set => SetValue(ColorSchemeProperty, value);
+        get => GetValue(PaletteProperty);
+        set => SetValue(PaletteProperty, value);
     }
 
     public bool ShowLineNumbers
@@ -67,6 +71,16 @@ public class CodeBlock : TemplatedControl
     {
         get => GetValue(ShowCopyButtonProperty);
         set => SetValue(ShowCopyButtonProperty, value);
+    }
+
+    public CodeBlock()
+    {
+        // 跟随 Avalonia 原生主题变体（窗口/应用 RequestedThemeVariant 或系统主题）
+        ActualThemeVariantChanged += (_, _) =>
+        {
+            ApplyPalette();
+            RenderCode();
+        };
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -91,13 +105,9 @@ public class CodeBlock : TemplatedControl
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == ColorSchemeProperty)
+        if (change.Property == CodeProperty || change.Property == LanguageProperty || change.Property == PaletteProperty)
         {
             ApplyPalette();
-            RenderCode();
-        }
-        else if (change.Property == CodeProperty || change.Property == LanguageProperty)
-        {
             RenderCode();
         }
         else if (change.Property == ShowLineNumbersProperty)
@@ -116,9 +126,12 @@ public class CodeBlock : TemplatedControl
         }
     }
 
+    /// <summary>解析当前调色板：显式 <see cref="Palette"/> 优先，否则按主题变体取内建默认。</summary>
+    private CodePalette ResolvePalette() => Palette ?? CodePalette.For(ActualThemeVariant);
+
     private void ApplyPalette()
     {
-        var palette = CodePalette.For(ColorScheme);
+        var palette = ResolvePalette();
 
         if (_container is not null)
         {
@@ -146,7 +159,7 @@ public class CodeBlock : TemplatedControl
 
         var code = Code ?? string.Empty;
         var tokens = CodeLexer.Tokenize(code, Language);
-        _codeText.Inlines = CodeHighlightRenderer.Render(tokens, CodePalette.For(ColorScheme));
+        _codeText.Inlines = CodeHighlightRenderer.Render(tokens, ResolvePalette());
         UpdateLineNumbers(code);
     }
 

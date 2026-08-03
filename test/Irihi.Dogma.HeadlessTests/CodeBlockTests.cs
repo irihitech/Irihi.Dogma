@@ -3,6 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Styling;
 using Avalonia.VisualTree;
 using Irihi.Dogma.Controls;
 using Xunit;
@@ -117,10 +119,10 @@ public class CodeBlockTests
     }
 
     [AvaloniaFact]
-    public void ColorScheme_Switch_Updates_Background_And_Selection()
+    public void Follows_RequestedThemeVariant()
     {
-        var block = new CodeBlock { Code = "x", ColorScheme = CodeTheme.Dark };
-        var window = new Window { Content = block };
+        var block = new CodeBlock { Code = "x" };
+        var window = new Window { Content = block, RequestedThemeVariant = ThemeVariant.Dark };
         window.Show();
 
         var container = block.GetVisualDescendants().OfType<Border>()
@@ -130,27 +132,51 @@ public class CodeBlockTests
         Assert.Equal(CodePalette.Dark.Background, container.Background);
         Assert.Equal(CodePalette.Dark.Selection, text.SelectionBrush);
 
-        block.ColorScheme = CodeTheme.Light;
+        window.RequestedThemeVariant = ThemeVariant.Light;
         Assert.Equal(CodePalette.Light.Background, container.Background);
         Assert.Equal(CodePalette.Light.Selection, text.SelectionBrush);
     }
 
     [AvaloniaFact]
-    public void ColorScheme_Switch_Rebuilds_Inlines_With_New_Palette()
+    public void ThemeVariant_Switch_Rebuilds_Inlines_With_New_Palette()
     {
-        var block = new CodeBlock { Code = "public class Foo", Language = CodeLanguage.CSharp, ColorScheme = CodeTheme.Dark };
-        var window = new Window { Content = block };
+        var block = new CodeBlock { Code = "public class Foo", Language = CodeLanguage.CSharp };
+        var window = new Window { Content = block, RequestedThemeVariant = ThemeVariant.Dark };
         window.Show();
 
         var text = block.GetVisualDescendants().OfType<SelectableTextBlock>().First();
         var darkKeyword = text.Inlines!.OfType<Run>().First(r => r.Text == "public");
         var darkColor = darkKeyword.Foreground;
 
-        block.ColorScheme = CodeTheme.Light;
+        window.RequestedThemeVariant = ThemeVariant.Light;
         var lightKeyword = text.Inlines!.OfType<Run>().First(r => r.Text == "public");
 
         Assert.NotEqual(darkColor, lightKeyword.Foreground);
         // round-trip 保持
         Assert.Equal("public class Foo", text.Inlines!.Text);
+    }
+
+    [AvaloniaFact]
+    public void Palette_Property_Overrides_Default()
+    {
+        var custom = new CodePalette { Background = Brushes.Purple, Foreground = Brushes.White };
+        var block = new CodeBlock { Code = "x", Palette = custom };
+        var window = new Window
+        {
+            Content = block,
+            RequestedThemeVariant = ThemeVariant.Dark,
+        };
+        window.Show();
+
+        var container = block.GetVisualDescendants().OfType<Border>()
+            .First(b => b.Name == "PART_Container");
+        Assert.Equal(Brushes.Purple, container.Background);
+
+        var text = block.GetVisualDescendants().OfType<SelectableTextBlock>().First();
+        Assert.Equal(Brushes.White, text.Foreground);
+
+        // 显式 Palette 不随主题切换
+        window.RequestedThemeVariant = ThemeVariant.Light;
+        Assert.Equal(Brushes.Purple, container.Background);
     }
 }

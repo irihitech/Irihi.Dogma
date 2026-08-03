@@ -39,12 +39,16 @@
 
 ```
 CodeBlock : TemplatedControl
-  string      Code              // 待展示源码
-  CodeLanguage Language         // Axaml | CSharp
-  CodeTheme   ColorScheme       // Dark（默认）| Light（改名：避免与 Avalonia 内置 Theme 冲突）
-  bool        ShowLineNumbers   // 默认 true
-  bool        ShowCopyButton    // 默认 true
+  string        Code              // 待展示源码
+  CodeLanguage  Language          // Axaml | CSharp
+  CodePalette?  Palette           // null = 按 ActualThemeVariant 自动选内建 Dark/Light；赋值后固定
+  bool          ShowLineNumbers   // 默认 true
+  bool          ShowCopyButton    // 默认 true
 ```
+
+主题机制：控件订阅 `ActualThemeVariantChanged`，`Palette == null` 时按主题变体自动切换
+`CodePalette.Dark`/`Light`（跟随窗口/应用 `RequestedThemeVariant` 或系统主题）；显式设置
+`Palette` 后固定使用该 palette。`CodePalette` 可变、可 XAML 构造，方便自定义配色。
 
 模板结构：
 

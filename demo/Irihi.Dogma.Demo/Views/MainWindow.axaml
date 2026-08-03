@@ -5,6 +5,7 @@
         x:Class="Irihi.Dogma.Demo.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="Irihi.Dogma Demo — CodeBlock"
+        RequestedThemeVariant="{Binding RequestedTheme}"
         Width="1000" Height="760">
     <DockPanel Margin="12">
         <StackPanel DockPanel.Dock="Top"
@@ -21,12 +22,10 @@
             <StackPanel Spacing="12">
                 <TextBlock Text="AXAML" FontWeight="Bold" FontSize="16"/>
                 <cb:CodeBlock Code="{Binding SampleAxaml}"
-                              Language="Axaml"
-                              ColorScheme="{Binding CodeScheme}"/>
+                              Language="Axaml"/>
                 <TextBlock Text="C#" FontWeight="Bold" FontSize="16"/>
                 <cb:CodeBlock Code="{Binding SampleCSharp}"
-                              Language="CSharp"
-                              ColorScheme="{Binding CodeScheme}"/>
+                              Language="CSharp"/>
             </StackPanel>
         </ScrollViewer>
     </DockPanel>

@@ -1,3 +1,4 @@
+using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Irihi.Dogma.Controls;
 
@@ -5,12 +6,12 @@ namespace Irihi.Dogma.Demo.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject
 {
-    /// <summary>是否使用亮色主题（演示 <see cref="CodeBlock.ColorScheme"/>）。</summary>
+    /// <summary>是否使用亮色主题（演示 Avalonia 原生 RequestedThemeVariant 切换）。</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CodeScheme))]
+    [NotifyPropertyChangedFor(nameof(RequestedTheme))]
     private bool _useLightTheme;
 
-    public CodeTheme CodeScheme => UseLightTheme ? CodeTheme.Light : CodeTheme.Dark;
+    public ThemeVariant RequestedTheme => UseLightTheme ? ThemeVariant.Light : ThemeVariant.Dark;
 
     /// <summary>示例 AXAML 源码（覆盖元素/属性/绑定/MarkupExtension/嵌套扩展/注释）。</summary>
     public string SampleAxaml { get; } = """
