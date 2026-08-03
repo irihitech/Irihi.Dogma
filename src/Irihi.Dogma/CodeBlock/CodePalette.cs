@@ -1,5 +1,4 @@
 using Avalonia.Media;
-using Avalonia.Styling;
 
 namespace Irihi.Dogma.Controls;
 
@@ -74,10 +73,6 @@ public class CodePalette
 
     /// <summary>亮色主题</summary>
     public static CodePalette Light { get; } = CreateLight();
-
-    /// <summary>按 <see cref="ThemeVariant"/> 取内建调色板。</summary>
-    public static CodePalette For(ThemeVariant variant) =>
-        variant == ThemeVariant.Light ? Light : Dark;
 
     private static CodePalette CreateDark() => new()
     {

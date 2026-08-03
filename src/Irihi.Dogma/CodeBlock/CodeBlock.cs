@@ -4,6 +4,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Styling;
 
 namespace Irihi.Dogma.Controls;
 
@@ -127,7 +128,8 @@ public class CodeBlock : TemplatedControl
     }
 
     /// <summary>解析当前调色板：显式 <see cref="Palette"/> 优先，否则按主题变体取内建默认。</summary>
-    private CodePalette ResolvePalette() => Palette ?? CodePalette.For(ActualThemeVariant);
+    private CodePalette ResolvePalette() =>
+        Palette ?? (ActualThemeVariant == ThemeVariant.Light ? CodePalette.Light : CodePalette.Dark);
 
     private void ApplyPalette()
     {
