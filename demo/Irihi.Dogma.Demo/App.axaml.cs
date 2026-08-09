@@ -16,10 +16,10 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        // 文档站集成：注册 SG 生成的页面/分类 + Lingua 文本源 + ViewLocator
+        // 文档站集成：注册 SG 生成的页面/分类 + Lingua 文本源
+        // （ViewLocator 由 MainWindow 的 ContentControl.ContentTemplate 显式使用）
         GeneratedDocPages.Register(DocSite.Instance);
         DocSite.Instance.LinguaManager = LanguageManager.Instance;
-        DataTemplates.Add(new GeneratedViewLocator());
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

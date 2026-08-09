@@ -3,6 +3,7 @@
         xmlns:docs="using:Irihi.Dogma.Docs"
         xmlns:local="using:Irihi.Dogma.Demo"
         xmlns:vm="using:Irihi.Dogma.Demo.ViewModels"
+        xmlns:lingua="https://irihi.tech/lingua"
         x:Class="Irihi.Dogma.Demo.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="{Translate {x:Static local:LanguageManager+Keys.App_Title}}"
@@ -16,6 +17,15 @@
                          PlaceholderText="{Translate {x:Static local:LanguageManager+Keys.Search_Placeholder}}"
                          Text="{Binding SearchText}"
                          Margin="0,0,0,8"/>
+                <lingua:CulturePicker DockPanel.Dock="Top">
+                    <lingua:CulturePicker.Managers>
+                        <x:Static Member="local:LanguageManager.Instance" />
+                    </lingua:CulturePicker.Managers>
+                    <lingua:CulturePicker.Cultures>
+                        <x:Static Member="lingua:LinguaCulture.InvariantCulture" />
+                        <lingua:LinguaCulture Culture="zh-Hans" DisplayName="中文" />
+                    </lingua:CulturePicker.Cultures>
+                </lingua:CulturePicker>
                 <ListBox ItemsSource="{Binding VisiblePages}"
                          SelectedItem="{Binding SelectedPage}"
                          Background="Transparent">
@@ -34,7 +44,11 @@
         </Border>
         <!-- 右侧：内容区（GeneratedViewLocator 按 VM 呈现对应 View） -->
         <ScrollViewer>
-            <ContentControl Content="{Binding CurrentContent}" Margin="24" Padding="16"/>
+            <ContentControl Content="{Binding CurrentContent}" Margin="24" Padding="16">
+                <ContentControl.ContentTemplate>
+                    <docs:GeneratedViewLocator/>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
         </ScrollViewer>
     </DockPanel>
 </Window>
