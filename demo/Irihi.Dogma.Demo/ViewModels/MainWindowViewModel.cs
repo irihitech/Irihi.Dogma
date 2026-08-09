@@ -40,15 +40,6 @@ public partial class MainWindowViewModel : ObservableObject
 
     public ThemeVariant RequestedTheme => UseLightTheme ? ThemeVariant.Light : ThemeVariant.Dark;
 
-    /// <summary>搜索文本（非空时左侧切换为搜索结果列表）。</summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSearching))]
-    private string _searchText = string.Empty;
-
-    /// <summary>当前选中的页面（搜索结果列表用）。</summary>
-    [ObservableProperty]
-    private DocPageNode? _selectedPage;
-
     /// <summary>当前选中的树节点（TreeView 菜单用）。</summary>
     [ObservableProperty]
     private DocTreeItem? _selectedTreeItem;
@@ -57,25 +48,9 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private object? _currentContent;
 
-    /// <summary>是否处于搜索模式（隐藏 TreeView，显示结果列表）。</summary>
-    public bool IsSearching => !string.IsNullOrWhiteSpace(SearchText);
-
     /// <summary>左侧 TreeView 的多层菜单（从本实例 Roots 递归构建）。</summary>
     public IReadOnlyList<DocTreeItem> TreeItems =>
         _site.Roots.Select(BuildTreeItem).ToList();
-
-    /// <summary>搜索结果列表。</summary>
-    public IReadOnlyList<DocPageNode> VisiblePages =>
-        _site.Search(SearchText).ToList();
-
-    partial void OnSearchTextChanged(string value)
-    {
-        OnPropertyChanged(nameof(IsSearching));
-        OnPropertyChanged(nameof(TreeItems));
-        OnPropertyChanged(nameof(VisiblePages));
-    }
-
-    partial void OnSelectedPageChanged(DocPageNode? value) => Navigate(value);
 
     partial void OnSelectedTreeItemChanged(DocTreeItem? value)
     {

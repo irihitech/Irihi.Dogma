@@ -14,8 +14,6 @@
         <Border DockPanel.Dock="Left" Width="300" Padding="12" BorderBrush="#33000000" BorderThickness="0,0,1,0">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
-                    <TextBox PlaceholderText="{Translate {x:Static local:LanguageManager+Keys.Search_Placeholder}}"
-                             Text="{Binding SearchText}"/>
                     <lingua:CulturePicker>
                         <lingua:CulturePicker.Managers>
                             <x:Static Member="local:LanguageManager.Instance" />
@@ -27,27 +25,9 @@
                     </lingua:CulturePicker>
                 </StackPanel>
 
-                <!-- 搜索模式：结果列表 -->
-                <ListBox ItemsSource="{Binding VisiblePages}"
-                         SelectedItem="{Binding SelectedPage}"
-                         IsVisible="{Binding IsSearching}"
-                         Background="Transparent">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="docs:DocPageNode">
-                            <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding Title^}"
-                                           FontSize="14" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Metadata.TitleKey}"
-                                           FontSize="11" Opacity="0.55"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-
-                <!-- 菜单模式：多层 TreeView -->
+                <!-- 菜单：多层 TreeView -->
                 <TreeView ItemsSource="{Binding TreeItems}"
                           SelectedItem="{Binding SelectedTreeItem}"
-                          IsVisible="{Binding !IsSearching}"
                           Background="Transparent">
                     <TreeView.ItemTemplate>
                         <TreeDataTemplate ItemsSource="{Binding Children}">

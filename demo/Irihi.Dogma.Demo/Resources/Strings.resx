@@ -3,9 +3,6 @@
   <data name="App_Title" xml:space="preserve">
     <value>Irihi.Dogma Docs</value>
   </data>
-  <data name="Search_Placeholder" xml:space="preserve">
-    <value>Search pages...</value>
-  </data>
   <data name="Docs_Root" xml:space="preserve">
     <value>Docs</value>
   </data>

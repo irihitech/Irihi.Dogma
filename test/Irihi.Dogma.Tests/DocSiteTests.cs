@@ -143,34 +143,17 @@ public class DocSiteTests
         Assert.Null(pure.Page);   // 无页面容器：标题由消费方处理（应显式声明 [DocPage]）
     }
 
-    // ---- 搜索 ----
-
     [Fact]
-    public void Search_Matches_Title_Keywords_And_Category()
+    public void AllPages_Collects_Tree_Pages()
     {
         var site = CreateSite(
-            Cat("Controls", parent: null, page: Page("Controls.Title", "Controls", new[] { "ui", "widget" })),
+            Cat("Controls", parent: null, page: Page("Controls.Title", "Controls")),
             Cat("Buttons", parent: "Controls", page: Page("Buttons.Title", "Buttons")));
 
-        Assert.Single(site.Search("ui"));          // 关键字命中
-        Assert.Single(site.Search("Buttons"));     // 标题命中
-        Assert.Single(site.Search("Controls"));    // 分类命中（Controls 页面）
-        Assert.Equal(1, site.Search("controls").Count());  // 仅 Controls 页面的分类键命中
-        Assert.Empty(site.Search("nothing"));
-        Assert.Empty(site.Search("  "));           // 空白查询
-    }
-
-    [Fact]
-    public void Search_Ranks_Title_Hit_Above_Keyword_Hit()
-    {
-        var site = CreateSite(
-            Cat("A", page: Page("Alpha.Title", "Alpha", new[] { "click" })),
-            Cat("B", page: Page("Beta.Title", "Clickable")));
-
-        var results = site.Search("click").ToList();
-        Assert.Equal(2, results.Count);
-        Assert.Equal("Beta.Title", results[0].Metadata.TitleKey);   // 标题命中优先
-        Assert.Equal("Alpha.Title", results[1].Metadata.TitleKey);  // 关键字命中
+        // 宿主自建搜索/索引可遍历 AllPages
+        var pages = site.AllPages.ToList();
+        Assert.Equal(2, pages.Count);
+        Assert.Contains(pages, p => p.Metadata.TitleKey == "Buttons.Title");
     }
 
     // ---- provider ----
@@ -206,27 +189,20 @@ public class DocSiteTests
     }
 
     [Fact]
-    public void Subclass_Can_Override_Scoring_And_CollectPages()
+    public void Subclass_Can_Override_CollectPages()
     {
-        // 验证 protected/virtual 扩展点：子类可 override 搜索评分与页面收集
+        // 验证 protected/virtual 扩展点：子类可 override 页面收集规则
         var site = new CustomDocSite();
         site.AddCategory(Cat("A", page: Page("A.Title", "Alpha")));
-        site.AddCategory(Cat("B", page: Page("B.Title", "Beta")));
-
-        // 自定义评分：全部恒定 1 → 搜索返回按标题排序而非加权
-        var results = site.Search("alpha beta").ToList();
-        Assert.Equal(2, results.Count);
-        Assert.Equal("A.Title", results[0].Metadata.TitleKey);
+        site.AddCategory(Cat("C", page: Page("C.Title", "Gamma", new[] { "skip" })));
 
         // 自定义收集：跳过含 "skip" 关键字的页面
-        site.AddCategory(Cat("C", page: Page("C.Title", "Gamma", new[] { "skip" })));
         Assert.DoesNotContain(site.AllPages, p => p.Metadata.TitleKey == "C.Title");
+        Assert.Contains(site.AllPages, p => p.Metadata.TitleKey == "A.Title");
     }
 
     private sealed class CustomDocSite : DocSite
     {
-        protected override int Score(DocPageNode page, string[] parts) => 1;
-
         protected override IEnumerable<DocPageNode> CollectPages(DocCategoryNode node)
         {
             foreach (var page in base.CollectPages(node))

@@ -6,7 +6,7 @@
 ## 背景与目标
 
 Dogma 将作为不同 Avalonia 控件库的**文档项目基础设施**。每个库需要基于
-ViewModel 的声明式配置（Attribute），自动获得**完整的导航与搜索功能**，
+ViewModel 的声明式配置（Attribute），自动获得**完整的导航功能**，
 满足 **NativeAOT** 发布要求。
 
 ## 设计原则（review 后修订）
@@ -22,14 +22,14 @@ ViewModel 的声明式配置（Attribute），自动获得**完整的导航与�
    （VM 知道自己关联的 View）；View 实现由各仓库自己写，VM→View 映射
    （ViewLocator / IDataTemplate）由 Source Generator 生成——静态映射、
    NativeAOT 标准（替代模板默认的反射版）。
-5. **DocShell 外壳控件暂不实现**：导航树/搜索框 UI 由各仓库自行搭建。
+5. **DocShell 外壳控件暂不实现**：导航/菜单 UI 由各仓库自行搭建；**搜索由宿主自建**（DocSite 不提供搜索，保留 `AllPages` 供宿主遍历建索引）。
 
 ## 架构：三层
 
 ```
 ┌─ 标记层    [DocCategory] + [DocPage]（标在同一 VM 上，共存 = 分类节点携带页面）
 ├─ 生成层    DocPageGenerator（Roslyn SG）→ ① 静态注册代码 ② GeneratedViewLocator（静态映射）
-└─ 运行时层  DocSite 注册表 + 树构建/搜索 + GeneratedViewLocator（供宿主 ContentControl）
+└─ 运行时层  DocSite 注册表 + 树构建/页面查找 + GeneratedViewLocator（供宿主 ContentControl）
 ```
 
 ## 1. 标记层（共存模型）
@@ -62,7 +62,7 @@ public sealed partial class InputViewModel { }
 | | `Tags` | 标签数组（跨文化稳定，烘焙进 metadata，供应用需求消费：过滤/分组/UI 标记） |
 | `[DocPage]` | `TitleKey` / `Title` | 页面标题键 + 可选 fallback 字面量 |
 | | `View` | 关联 View 类型（供 GeneratedViewLocator 静态映射）；**可选**——仅标题/容器页面（如纯分类的落地页）可省略，不进 ViewLocator |
-| | `Keywords` | 搜索关键字（不随文化变） |
+| | `Keywords` | 页面关键字元数据（宿主自建搜索/索引时可消费；不随文化变） |
 
 **关联规则（唯一）**：两个 Attribute 标在同一 VM 上 = 该分类节点携带该页面。
 没有 CategoryKey / Pages / LandingPage——归属零冗余声明。
@@ -145,7 +145,7 @@ public sealed class DocPageAttribute(string titleKey) : Attribute
     public string TitleKey { get; } = titleKey;   // Lingua 键（页面标题）
     public string? Title { get; init; }           // fallback 字面量（键缺失时兜底）
     public Type? View { get; init; }              // 关联 View（编译期 typeof）
-    public string[]? Keywords { get; init; }      // 搜索关键字（跨文化稳定）
+    public string[]? Keywords { get; init; }      // 页面关键字元数据（宿主自建搜索可消费）
 }
 ```
 
@@ -214,7 +214,7 @@ public sealed class DocSite : IDocRegistry
     public IViewModelProvider ViewModelProvider { get; set; }     // 默认每次新建
     public IReadOnlyList<DocCategoryNode> Roots { get; }          // 顶层分类（排序后）
     public IEnumerable<DocPageNode> AllPages { get; }             // 树遍历收集的所有页面
-    public IEnumerable<DocPageNode> Search(string query);         // 标题当前值 + Keywords 匹配
+    public IEnumerable<DocPageNode> AllPages { get; }         // 树遍历所有页面（宿主自建搜索/索引用）
     public event Action? TreeChanged;                             // Register 后触发，宿主重建 UI
 }
 ```
@@ -241,9 +241,9 @@ public sealed class DocSite : IDocRegistry
   - `DocSite.ViewModelProvider` 决定"获取语义"：默认每次新建；宿主注入带缓存的实现
     （单例/DI）即得"从 cache 获取"，SG 注册代码一行不改
 - `Navigate(page)`：经 provider 获取 VM 实例，暴露当前 VM
-- `Search(query)`：消费 Lingua observable 的当前文化文本（标题/分类）+ Keywords
+- 搜索由宿主自建：DocSite 提供 `AllPages` 供宿主遍历建索引，不再内置 Search
 - **可继承扩展点**：`DocSite` 非 sealed，子类可 override `BuildTree`（树构建策略）、
-  `ResolveTitle`（标题来源）、`Score`（搜索加权）、`CollectPages`（页面收集）、
+  `ResolveTitle`（标题来源）、`CollectPages`（页面收集）、
   `OnTreeChanged`（注册钩子）；`AddCategory` virtual 可拦截注册；`Categories` protected
   只读视图。每项目创建自己的 DocSite 子类承载独立注册（不依赖全局 `Instance`）。
 

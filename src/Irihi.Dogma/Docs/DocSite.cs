@@ -41,7 +41,7 @@ public class DocSite : IDocRegistry
     /// <summary>顶层分类节点（排序后）。</summary>
     public IReadOnlyList<DocCategoryNode> Roots => _roots ??= BuildTree();
 
-    /// <summary>树遍历收集的所有页面。</summary>
+    /// <summary>树遍历收集的所有页面（宿主可自行构建搜索/索引）。</summary>
     public IEnumerable<DocPageNode> AllPages
     {
         get
@@ -54,27 +54,6 @@ public class DocSite : IDocRegistry
                 }
             }
         }
-    }
-
-    /// <summary>
-    /// 按查询搜索页面：匹配标题 fallback/键、关键字、所属分类键；标题命中优先。
-    /// </summary>
-    public IEnumerable<DocPageNode> Search(string query)
-    {
-        var q = query.Trim();
-        if (q.Length == 0)
-        {
-            return [];
-        }
-
-        var parts = q.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        return AllPages
-            .Select(p => (Page: p, Score: Score(p, parts)))
-            .Where(x => x.Score > 0)
-            .OrderByDescending(x => x.Score)
-            .ThenBy(x => x.Page.Metadata.TitleKey, StringComparer.Ordinal)
-            .Select(x => x.Page)
-            .ToList();
     }
 
     /// <summary>
@@ -113,35 +92,6 @@ public class DocSite : IDocRegistry
 
         page = null;
         return false;
-    }
-
-    /// <summary>搜索加权评分（子类可 override 自定义匹配逻辑）。</summary>
-    protected virtual int Score(DocPageNode page, string[] parts)
-    {
-        var m = page.Metadata;
-        var title = string.Join(" ", new[] { m.FallbackTitle, m.TitleKey });
-        var keywords = string.Join(" ", m.Keywords);
-        var category = page.Category.Metadata.Key;
-        var score = 0;
-        foreach (var part in parts)
-        {
-            if (title.Contains(part, StringComparison.OrdinalIgnoreCase))
-            {
-                score += 2;
-            }
-
-            if (keywords.Contains(part, StringComparison.OrdinalIgnoreCase))
-            {
-                score += 1;
-            }
-
-            if (category.Contains(part, StringComparison.OrdinalIgnoreCase))
-            {
-                score += 1;
-            }
-        }
-
-        return score;
     }
 
     /// <summary>
