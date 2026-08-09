@@ -243,30 +243,32 @@ public class DocSiteTests
     }
 
     [Fact]
-    public void GetViewModel_By_Key_Returns_Page_Vm()
+    public void FindPage_By_Key_Returns_Page_Node()
     {
         var page = Page("A.Title", "Alpha", factory: () => new object());
         var site = CreateSite(
             Cat("Root"),
             Cat("Child", parent: "Root", page: page));
 
-        var vm = site.GetViewModel("Child");
-        Assert.NotNull(vm);
-        // 经默认 provider 每次新建
-        Assert.NotSame(vm, site.GetViewModel("Child"));
+        var node = site.FindPage("Child");
+        Assert.NotNull(node);
+        Assert.Same(page, node!.Metadata);
+        Assert.Equal("Child", node.Category.Metadata.Key);
+        // 经 provider 获取 VM
+        Assert.NotNull(site.ViewModelProvider.GetViewModel(node));
     }
 
     [Fact]
-    public void GetViewModel_By_Key_Returns_Null_For_Missing_Or_Container()
+    public void FindPage_By_Key_Returns_Null_For_Missing_Or_Container()
     {
         var site = CreateSite(
             Cat("Root"),
             Cat("Child", parent: "Root", page: Page("A.Title", "A")),
             Cat("Pure", parent: "Root"));
 
-        Assert.Null(site.GetViewModel("Missing"));
-        Assert.Null(site.GetViewModel("Pure"));   // 无页面容器
-        Assert.Null(site.GetViewModel("Root"));   // 根容器
+        Assert.Null(site.FindPage("Missing"));
+        Assert.Null(site.FindPage("Pure"));   // 无页面容器
+        Assert.Null(site.FindPage("Root"));   // 根容器
     }
 
     private static T GetValue<T>(IObservable<T> observable)

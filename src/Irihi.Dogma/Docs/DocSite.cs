@@ -78,16 +78,16 @@ public class DocSite : IDocRegistry
     }
 
     /// <summary>
-    /// 按分类 Key 获取其共存页面的 VM 实例（经 <see cref="ViewModelProvider"/>）；
-    /// Key 不存在或该分类节点无页面时返回 null。
+    /// 按分类 Key 查找其共存页面节点（<see cref="DocPageNode"/> 含 Metadata/Title/Category，
+    /// VM 可经 <see cref="ViewModelProvider"/> 获取）；Key 不存在或该分类节点无页面时返回 null。
     /// </summary>
-    public object? GetViewModel(string key)
+    public DocPageNode? FindPage(string key)
     {
         foreach (var root in Roots)
         {
             if (TryFindPage(root, key, out var page))
             {
-                return page is null ? null : ViewModelProvider.GetViewModel(page);
+                return page;
             }
         }
 
