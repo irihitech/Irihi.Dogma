@@ -25,18 +25,22 @@ ViewModel 的声明式配置（Attribute），自动获得**完整的导航与�
 ## 架构：三层
 
 ```
-┌─ 标记层    [DocPage] Attribute（标在 VM：标题/分类/描述键 + 排序 + 关键字 + View 类型）
+┌─ 标记层    [DocCategory] + [DocPage] Attribute（分开标记；SG 集成管理）
 ├─ 生成层    DocPageGenerator（Roslyn SG）→ ① 静态注册代码 ② GeneratedViewLocator（IDataTemplate，静态映射）
 └─ 运行时层  DocSite 注册表 + 树构建/搜索 + GeneratedViewLocator（供宿主 ContentControl 使用）
 ```
 
-## 1. 标记层（ViewModel 上）
+## 1. 标记层（分类与页面分开标记，均标在任意类型上）
 
 ```csharp
+// 分类节点（可嵌套任意深度；Key 即 Lingua 键，Parent 指向父分类键，Order 控制同级顺序）
+[DocCategory(Key = "Docs.Controls", Order = 1)]
+[DocCategory(Key = "Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1)]
+
+// 页面挂到叶子（或任意层）分类下
 [DocPage(TitleKey = "Docs.Button.Title",
-         CategoryKey = "Docs.Controls",
-         DescriptionKey = "Docs.Button.Desc",
-         View = typeof(ButtonView),              // VM 知道自己关联的 View
+         CategoryKey = "Docs.Controls.Buttons",
+         View = typeof(ButtonView),          // VM 知道自己关联的 View
          Order = 1,
          Keywords = new[] { "click", "action" })]
 public sealed partial class ButtonViewModel { }
@@ -44,27 +48,34 @@ public sealed partial class ButtonViewModel { }
 
 | 参数 | 用途 |
 |---|---|
-| `TitleKey` / `CategoryKey` / `DescriptionKey` | Lingua 资源键（导航/搜索/页面标题的文本来源） |
-| `Title`（可选 fallback） | 键缺失时兜底显示的字面量，非 resx |
+| `[DocCategory]`：`Key` / `Parent` / `Order` | 分类节点：Lingua 键作标题，Parent 链构成多级树，Order 同级排序；顶层 Parent 省略 |
+| `[DocPage]`：`TitleKey` / `CategoryKey` | 页面标题键 + 所挂分类键 |
+| `Title`（可选 fallback） | 页面键缺失时兜底显示的字面量，非 resx |
 | `View` | 该 VM 关联的 View 类型（供生成的 ViewLocator 静态映射） |
-| `Order` | 分类内排序 |
+| `Order` | 同分类下页面排序 |
 | `Keywords` | 补充搜索关键字（不随文化变） |
+
+**不包含**：页面声明不携带分类层级——层级完全由 `[DocCategory]` 显式控制。
 
 ## 2. 生成层（AOT 关键）
 
 `DocPageGenerator : IIncrementalGenerator`（netstandard2.0，不引用 Lingua 类型）：
 
-### ① 静态注册代码
+### ① 静态注册代码（分类 + 页面，SG 集成管理）
 
 ```csharp
 // GeneratedDocPages.g.cs（自动生成）
 public static partial class GeneratedDocPages
 {
-    public static void Register(IDocRegistry registry) =>
+    public static void Register(IDocRegistry registry)
+    {
+        registry.AddCategory(new DocCategoryMetadata("Docs.Controls", parentKey: null, order: 1));
+        registry.AddCategory(new DocCategoryMetadata("Docs.Controls.Buttons", "Docs.Controls", 1));
         registry.AddPage(new DocPageMetadata(
-            "Docs.Button.Title", "Docs.Controls", "Docs.Button.Desc",
+            "Docs.Button.Title", "Docs.Controls.Buttons",
             typeof(ButtonView), 1, new[] { "click" }, null,
             viewModelFactory: () => new ButtonViewModel()));   // 编译期 new
+    }
 }
 ```
 
@@ -90,16 +101,19 @@ public sealed partial class GeneratedViewLocator : IDataTemplate
 - 宿主接入：`DataTemplates.Add(new GeneratedViewLocator())`（App 级），
   `ContentControl` 绑当前 VM 即可自动呈现对应 View
 - 类型引用、`new` 调用全部编译期写死 → **NativeAOT 安全**；增量生成
+- **编译期引用完整性校验（SG 集成管理的价值）**：`[DocCategory]` 的 `Parent` 指向未声明
+  分类、`[DocPage]` 的 `CategoryKey` 指向未声明分类 → 编译错误（DOGDOC002/003）
 - **不读 resx、不烘焙、不键校验**（键正确性由 Lingua 编译期保证）
 
 ## 3. 运行时层
 
 ### DocSite（注册表 + 核心逻辑）
 
-- `AddPage(DocPageMetadata)`（由生成的 `GeneratedDocPages.Register` 调用）
-- 树构建：`Category → Page`，按 `Order` 排序
+- `AddCategory`/`AddPage`（由生成的 `GeneratedDocPages.Register` 调用）
+- 树构建：按 `Parent` 链组装分类树（任意深度），页面挂到所声明的分类；
+  同级按 `Order` 排序，未声明 `Order` 的按注册顺序
 - `Navigate(page)`：生成 VM 实例（编译期工厂），暴露当前 VM
-- `Search(query)`：消费 Lingua observable 的当前文化文本 + Keywords + 描述
+- `Search(query)`：消费 Lingua observable 的当前文化文本（标题/分类）+ Keywords
 
 ### 宿主集成（View 呈现由各仓库自建 UI）
 
