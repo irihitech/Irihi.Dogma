@@ -77,11 +77,12 @@ public static partial class GeneratedDocPages
     {
         // 纯分组
         registry.AddCategory(new DocCategoryMetadata("Docs.Controls", parentKey: null, order: 1));
-        // 共存节点：一个 VM 同时注册分类与页面
-        registry.AddCategory(new DocCategoryMetadata("Docs.Controls.Buttons", "Docs.Controls", 1));
-        registry.AddPage(new DocPageMetadata(
-            "Docs.Button.Title", typeof(ButtonView), new[] { "click" }, null,
-            viewModelFactory: () => new ButtonViewModel()));   // 编译期 new
+        // 共存节点：一个 VM 同时注册分类与页面（Page 由 SG 从共存推断绑定）
+        registry.AddCategory(new DocCategoryMetadata("Docs.Controls.Buttons", "Docs.Controls", 1,
+            page: new DocPageMetadata(
+                "Docs.Button.Title", typeof(ButtonViewModel), typeof(ButtonView),
+                new[] { "click" }, null,
+                viewModelFactory: () => new ButtonViewModel())));   // 编译期 new
     }
 }
 ```
@@ -114,11 +115,114 @@ public sealed partial class GeneratedViewLocator : IDataTemplate
     （标题键 = key 本身，Lingua 无键时 fallback key 字面量）
 - **不读 resx、不烘焙、不键校验**（键正确性由 Lingua 编译期保证）
 
+## 数据模型（SG 生成代码与运行时对象）
+
+### Attribute（用户声明，零冗余）
+
+```csharp
+namespace Irihi.Dogma.Docs;
+
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+public sealed class DocCategoryAttribute(string key) : Attribute
+{
+    public string Key { get; } = key;         // Lingua 键（分类标题）
+    public string? Parent { get; init; }      // 父分类键；null = 顶层
+    public int Order { get; init; }           // 同级排序
+}
+
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+public sealed class DocPageAttribute(string titleKey) : Attribute
+{
+    public string TitleKey { get; } = titleKey;   // Lingua 键（页面标题）
+    public string? Title { get; init; }           // fallback 字面量（键缺失时兜底）
+    public Type? View { get; init; }              // 关联 View（编译期 typeof）
+    public string[]? Keywords { get; init; }      // 搜索关键字（跨文化稳定）
+}
+```
+
+### Metadata（SG 生成代码构造的运行时对象）
+
+```csharp
+public sealed class DocCategoryMetadata
+{
+    public required string Key { get; init; }        // Lingua 键（分类标题）
+    public string? ParentKey { get; init; }          // null = 顶层
+    public int Order { get; init; }
+    public bool IsExplicit { get; init; }            // false = 被引用而隐式创建的纯分组
+    public DocPageMetadata? Page { get; init; }      // 共存 VM 的页面；null = 纯分组
+}
+
+public sealed class DocPageMetadata
+{
+    public required string TitleKey { get; init; }
+    public string? FallbackTitle { get; init; }
+    public required Type ViewModelType { get; init; }
+    public required Type ViewType { get; init; }             // 供 GeneratedViewLocator 映射
+    public IReadOnlyList<string> Keywords { get; init; } = [];
+    public required Func<object> ViewModelFactory { get; init; }   // AOT：() => new ButtonViewModel()
+}
+```
+
+### 注册接口（GeneratedDocPages.Register 的调用目标）
+
+```csharp
+public interface IDocRegistry
+{
+    void AddCategory(DocCategoryMetadata category);   // 分类节点（Page 可空 = 纯分组）
+}
+```
+
+### 树模型（DocSite 构建后，供导航 UI 绑定）
+
+```csharp
+public sealed class DocCategoryNode
+{
+    public required DocCategoryMetadata Metadata { get; init; }
+    public IObservable<string?> Title { get; init; }          // GetObservable(Key)，UI `^` 绑定
+    public DocCategoryNode? Parent { get; init; }
+    public IReadOnlyList<DocCategoryNode> Children { get; init; } = [];  // 已按 Order 排序
+    public DocPageNode? Page { get; init; }                   // null = 纯分组（不可点击）
+    public bool IsClickable => Page is not null;
+}
+
+public sealed class DocPageNode
+{
+    public required DocPageMetadata Metadata { get; init; }
+    public IObservable<string?> Title { get; init; }
+    public required DocCategoryNode Category { get; init; }
+}
+
+public interface IViewModelProvider
+{
+    object GetViewModel(DocPageNode page);        // 语义：每次新建 / 单例缓存 / DI
+}
+
+public sealed class DocSite : IDocRegistry
+{
+    public static DocSite Instance { get; } = new();
+    public ILinguaManager? LinguaManager { get; set; }            // 文本来源
+    public IViewModelProvider ViewModelProvider { get; set; }     // 默认每次新建
+    public IReadOnlyList<DocCategoryNode> Roots { get; }          // 顶层分类（排序后）
+    public IEnumerable<DocPageNode> AllPages { get; }             // 树遍历收集的所有页面
+    public IEnumerable<DocPageNode> Search(string query);         // 标题当前值 + Keywords 匹配
+    public event Action? TreeChanged;                             // Register 后触发，宿主重建 UI
+}
+```
+
+### 关键语义
+
+- **文本不落 metadata**：`Title` 是运行时 `GetObservable(key)` 解析的 `IObservable<string?>`；
+  metadata 只存键 + fallback
+- **共存绑定**：`DocCategoryMetadata.Page` 由 SG 从"同一 VM 同时带两个 Attribute"推断填充，
+  用户侧零关联声明
+- **可点击性**：`IsClickable = Page is not null`；隐式分组节点无页面
+- **AOT**：`Func<object>` 工厂编译期生成、`typeof` 编译期写死
+
 ## 3. 运行时层
 
 ### DocSite（注册表 + 核心逻辑）
 
-- `AddCategory`/`AddPage`（由生成的 `GeneratedDocPages.Register` 调用）
+- `AddCategory`（由生成的 `GeneratedDocPages.Register` 调用；页面内嵌于分类元数据的 `Page`）
 - 树构建：按 `Parent` 链组装分类树（任意深度），**未显式声明的分类节点运行时隐式创建**
   （纯分组、不可点击）；**共存 VM 的页面绑定到其分类节点**；同级按 `Order` 排序
 - **VM 获取走 `IViewModelProvider`（创建能力与获取语义分离）**：
