@@ -132,6 +132,34 @@ DocSite.Instance.SetStringProvider(new ResxDocStringProvider(typeof(LanguageMana
 - **动态解析**（provider 按当前文化查）：导航标题随语言切换，需 `CultureChanged` 广播
 - 两者并存：显示走动态，搜索/fallback 走烘焙
 
+### Lingua 桥接示例（仅示例代码，Dogma 不建适配包、不依赖）
+
+Lingua 的 `LanguageManager.Instance` 是**惰性静态单例**（首次访问即构建就绪，
+无初始化时序），provider 接入只需宿主一行代码；用 `Lazy` 延迟持有可彻底消除
+接入时序约束：
+
+```csharp
+// 宿主项目中的普通 C# 类（运行时层；编译期 Lingua SG 产物已就绪，类型引用可解析）
+public sealed class LinguaDocStringProvider : IDocStringProvider
+{
+    private readonly Lazy<ILinguaManager> _manager;
+
+    public LinguaDocStringProvider(Func<ILinguaManager> factory) => _manager = new(factory);
+
+    public string? Get(string key, CultureInfo culture) => _manager.Value.Resolve(key, culture);
+
+    public IObservable<CultureInfo> CultureChanges => _manager.Value.CultureChanges;
+}
+
+// 接入：App 启动早期（OnFrameworkInitializationCompleted，窗口显示前）
+GeneratedDocPages.Register(DocSite.Instance);
+DocSite.Instance.SetStringProvider(new LinguaDocStringProvider(() => LanguageManager.Instance));
+```
+
+> 注：Dogma 的 SG 从不引用 Lingua（也无法引用——SG 之间看不到彼此生成结果），
+> 只通过 `AdditionalFiles` 直接读 resx 做键校验与烘焙；`ILinguaManager` 的引用
+> 只出现在宿主自己的桥接类里，同一编译单元内由 Lingua SG 生成。
+
 ## 分层实施计划
 
 1. **元数据 + 注册表 + 搜索核心**（无 UI）：`DocPageAttribute`/`DocPageMetadata`/
