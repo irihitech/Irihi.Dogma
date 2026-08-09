@@ -81,7 +81,7 @@ public sealed class DocPageGenerator : IIncrementalGenerator
     {
         var symbol = (INamedTypeSymbol)ctx.TargetSymbol;
         var attr = ctx.Attributes[0];
-        var key = attr.ConstructorArguments.FirstOrDefault().Value as string;
+        var key = GetStringArg(attr, "Key", 0);
         if (key is null)
         {
             return null;
@@ -141,7 +141,7 @@ public sealed class DocPageGenerator : IIncrementalGenerator
 
     private static PageInfo CollectPageInfo(AttributeData attr, INamedTypeSymbol symbol)
     {
-        var titleKey = attr.ConstructorArguments.FirstOrDefault().Value as string ?? string.Empty;
+        var titleKey = GetStringArg(attr, "TitleKey", 0) ?? string.Empty;
         string? fallback = null;
         string? viewType = null;
         var keywords = ImmutableArray<string>.Empty;
@@ -167,6 +167,25 @@ public sealed class DocPageGenerator : IIncrementalGenerator
             titleKey, fallback, viewType, keywords,
             symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             symbol.Locations.FirstOrDefault() ?? Location.None);
+    }
+
+    /// <summary>读取 attribute 字符串参数：支持位置参数（ctorIndex）或命名参数（name）两种写法。</summary>
+    private static string? GetStringArg(AttributeData attr, string name, int ctorIndex)
+    {
+        if (ctorIndex < attr.ConstructorArguments.Length && attr.ConstructorArguments[ctorIndex].Value is string positional)
+        {
+            return positional;
+        }
+
+        foreach (var named in attr.NamedArguments)
+        {
+            if (named.Key == name && named.Value.Value is string namedValue)
+            {
+                return namedValue;
+            }
+        }
+
+        return null;
     }
 
     private static ImmutableArray<string> ReadStrings(TypedConstant value)
@@ -306,34 +325,42 @@ public sealed class DocPageGenerator : IIncrementalGenerator
 
     private static void DetectCycles(ImmutableArray<CategoryInfo> cats, SourceProductionContext spc)
     {
-        var byKey = cats.ToDictionary(c => c.Key, StringComparer.Ordinal);
+        // 重复 Key 已在 DOGDOC003 报告；这里取首个用于环检测
+        var byKey = new Dictionary<string, CategoryInfo>(StringComparer.Ordinal);
+        foreach (var cat in cats)
+        {
+            if (!byKey.ContainsKey(cat.Key))
+            {
+                byKey[cat.Key] = cat;
+            }
+        }
+
         var visited = new HashSet<string>(StringComparer.Ordinal);
-        var stack = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var cat in cats)
         {
-            if (visited.Contains(cat.Key))
-            {
-                continue;
-            }
-
             var current = cat.Key;
-            while (current is not null && !visited.Contains(current))
+            var path = new HashSet<string>(StringComparer.Ordinal);
+            while (current is not null && !path.Contains(current))
             {
-                if (!stack.Add(current))
+                if (visited.Contains(current))
                 {
-                    // 环：current 已在当前路径上
-                    spc.ReportDiagnostic(Diagnostic.Create(CycleError, cat.Location, cat.Key));
-                    return;
+                    break; // 该链已验证无环，剪枝
                 }
 
+                path.Add(current);
                 visited.Add(current);
                 current = byKey.TryGetValue(current, out var meta) && meta.ParentKey is not null
                     ? meta.ParentKey
                     : null;
             }
 
-            stack.Clear();
+            if (current is not null && path.Contains(current))
+            {
+                // current 回到了当前路径上 = 环
+                spc.ReportDiagnostic(Diagnostic.Create(CycleError, cat.Location, cat.Key));
+                return;
+            }
         }
     }
 

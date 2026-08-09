@@ -36,19 +36,20 @@ ViewModel 的声明式配置（Attribute），自动获得**完整的导航与�
 
 ```csharp
 // 容器节点：IsClickable 显式声明可点击性（与层级无关，最上层也可点击）
-[DocCategory(Key = "Docs.Controls", Order = 1, IsClickable = false,
+// Key/TitleKey 为位置参数（只读属性不能作命名特性参数，C# CS0617）
+[DocCategory("Docs.Controls", Order = 1, IsClickable = false,
             Tags = new[] { "group", "layout" })]
 
 // 可点击节点：默认 IsClickable = true，无需显式；共存 = 分类节点携带页面
-[DocCategory(Key = "Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1)]
-[DocPage(TitleKey = "Docs.Button.Title",
+[DocCategory("Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1)]
+[DocPage("Docs.Button.Title",
          View = typeof(ButtonView),          // VM 知道自己关联的 View
          Keywords = new[] { "click", "action" })]
 public sealed partial class ButtonViewModel { }
 
 // 多级/同级多个页面 = 分类树每个节点绑定一个页面（或纯容器）
-[DocCategory(Key = "Docs.Controls.Input", Parent = "Docs.Controls", Order = 2)]
-[DocPage(TitleKey = "Docs.Input.Title", View = typeof(InputView))]
+[DocCategory("Docs.Controls.Input", Parent = "Docs.Controls", Order = 2)]
+[DocPage("Docs.Input.Title", View = typeof(InputView))]
 public sealed partial class InputViewModel { }
 ```
 
