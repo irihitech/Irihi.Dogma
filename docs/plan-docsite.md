@@ -172,7 +172,9 @@ DataTemplates.Add(new GeneratedViewLocator());
 
 ## 风险备注
 
-- View 的实现由各仓库自己写；`[DocPage]` 的 `View` 类型若与宿主命名约定不符，
-  ViewLocator 映射失败时 `Build` 返回 null（Avalonia 会报无匹配模板）
+- View 类型由 `[DocPage(View = typeof(...))]` 编译期指定，GeneratedViewLocator 静态
+  switch 一一映射（类型安全，无命名约定）；View 需公共无参构造（SG 生成 `new`，
+  编译期强制）。仅当 ContentControl 收到**未注册的 VM 类型**时 `Build` 返回 null
+  （预期 fallback，Avalonia 提示无匹配模板）
 - Lingua `GetObservable` 对未知键返回 null：Attribute 的 `Title` fallback 兜底
 - NativeAOT：VM/View 工厂均编译期 new，安全；宿主若额外用反射式模板需自行裁剪
