@@ -92,19 +92,9 @@ public partial class MainWindowViewModel : ObservableObject
 
     private static DocTreeItem BuildTreeItem(DocCategoryNode node)
     {
-        var item = new DocTreeItem(node, null);
-        var children = new List<DocTreeItem>();
-        foreach (var child in node.Children)
-        {
-            children.Add(BuildTreeItem(child));
-        }
-
-        if (node.Page is { } page)
-        {
-            children.Add(new DocTreeItem(null, page));
-        }
-
-        item.Children = children;
+        // 共存页面就是分类节点的内容（点击分类即导航），不重复作为子项加入 Children
+        var item = new DocTreeItem(node, node.Page);
+        item.Children = node.Children.Select(BuildTreeItem).ToList();
         return item;
     }
 }
