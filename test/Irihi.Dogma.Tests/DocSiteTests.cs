@@ -208,6 +208,40 @@ public class DocSiteTests
         Assert.Equal(1, raised);
     }
 
+    [Fact]
+    public void Subclass_Can_Override_Scoring_And_CollectPages()
+    {
+        // 验证 protected/virtual 扩展点：子类可 override 搜索评分与页面收集
+        var site = new CustomDocSite();
+        site.AddCategory(Cat("A", page: Page("A.Title", "Alpha")));
+        site.AddCategory(Cat("B", page: Page("B.Title", "Beta")));
+
+        // 自定义评分：全部恒定 1 → 搜索返回按标题排序而非加权
+        var results = site.Search("alpha beta").ToList();
+        Assert.Equal(2, results.Count);
+        Assert.Equal("A.Title", results[0].Metadata.TitleKey);
+
+        // 自定义收集：跳过含 "skip" 关键字的页面
+        site.AddCategory(Cat("C", page: Page("C.Title", "Gamma", new[] { "skip" })));
+        Assert.DoesNotContain(site.AllPages, p => p.Metadata.TitleKey == "C.Title");
+    }
+
+    private sealed class CustomDocSite : DocSite
+    {
+        protected override int Score(DocPageNode page, string[] parts) => 1;
+
+        protected override IEnumerable<DocPageNode> CollectPages(DocCategoryNode node)
+        {
+            foreach (var page in base.CollectPages(node))
+            {
+                if (!page.Metadata.Keywords.Contains("skip"))
+                {
+                    yield return page;
+                }
+            }
+        }
+    }
+
     private static T GetValue<T>(IObservable<T> observable)
     {
         T? result = default;

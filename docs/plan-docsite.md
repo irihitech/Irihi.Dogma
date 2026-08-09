@@ -243,6 +243,10 @@ public sealed class DocSite : IDocRegistry
     （单例/DI）即得"从 cache 获取"，SG 注册代码一行不改
 - `Navigate(page)`：经 provider 获取 VM 实例，暴露当前 VM
 - `Search(query)`：消费 Lingua observable 的当前文化文本（标题/分类）+ Keywords
+- **可继承扩展点**：`DocSite` 非 sealed，子类可 override `BuildTree`（树构建策略）、
+  `ResolveTitle`（标题来源）、`Score`（搜索加权）、`CollectPages`（页面收集）、
+  `OnTreeChanged`（注册钩子）；`AddCategory` virtual 可拦截注册；`Categories` protected
+  只读视图。每项目创建自己的 DocSite 子类承载独立注册（不依赖全局 `Instance`）。
 
 ### 宿主集成（View 呈现由各仓库自建 UI）
 

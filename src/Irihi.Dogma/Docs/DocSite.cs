@@ -15,6 +15,9 @@ public class DocSite : IDocRegistry
     private readonly List<DocCategoryMetadata> _categories = [];
     private IReadOnlyList<DocCategoryNode>? _roots;
 
+    /// <summary>已注册的分类元数据（只读视图，供子类检查/扩展）。</summary>
+    protected IReadOnlyList<DocCategoryMetadata> Categories => _categories;
+
     /// <summary>文本来源（Lingua）；null 时标题回退到 fallback/键字面量。</summary>
     public ILinguaManager? LinguaManager { get; set; }
 
@@ -25,12 +28,15 @@ public class DocSite : IDocRegistry
     public event Action? TreeChanged;
 
     /// <inheritdoc />
-    public void AddCategory(DocCategoryMetadata category)
+    public virtual void AddCategory(DocCategoryMetadata category)
     {
         _categories.Add(category);
         _roots = null;
-        TreeChanged?.Invoke();
+        OnTreeChanged();
     }
+
+    /// <summary>注册变化钩子（子类可 override 拦截/扩展；默认触发 <see cref="TreeChanged"/>）。</summary>
+    protected virtual void OnTreeChanged() => TreeChanged?.Invoke();
 
     /// <summary>顶层分类节点（排序后）。</summary>
     public IReadOnlyList<DocCategoryNode> Roots => _roots ??= BuildTree();
@@ -71,7 +77,8 @@ public class DocSite : IDocRegistry
             .ToList();
     }
 
-    private static int Score(DocPageNode page, string[] parts)
+    /// <summary>搜索加权评分（子类可 override 自定义匹配逻辑）。</summary>
+    protected virtual int Score(DocPageNode page, string[] parts)
     {
         var m = page.Metadata;
         var title = string.Join(" ", new[] { m.FallbackTitle, m.TitleKey });
@@ -99,7 +106,10 @@ public class DocSite : IDocRegistry
         return score;
     }
 
-    private IReadOnlyList<DocCategoryNode> BuildTree()
+    /// <summary>
+    /// 构建分类树（子类可 override 定制层级/排序/隐式节点策略）。
+    /// </summary>
+    protected virtual IReadOnlyList<DocCategoryNode> BuildTree()
     {
         // 1. 显式分类索引（注册顺序稳定）
         var byKey = new Dictionary<string, DocCategoryMetadata>(StringComparer.Ordinal);
@@ -183,13 +193,15 @@ public class DocSite : IDocRegistry
         return nodes.Values.Where(n => n.Parent is null).ToList();
     }
 
-    private IObservable<string?> ResolveTitle(string key, string fallback)
+    /// <summary>解析标题 observable（子类可 override 自定义标题来源/fallback）。</summary>
+    protected virtual IObservable<string?> ResolveTitle(string key, string fallback)
     {
         var observable = LinguaManager?.GetObservable(key);
         return observable ?? new ObservableValue<string?>(fallback);
     }
 
-    private static IEnumerable<DocPageNode> CollectPages(DocCategoryNode node)
+    /// <summary>树遍历收集页面（子类可 override 定制收集规则）。</summary>
+    protected virtual IEnumerable<DocPageNode> CollectPages(DocCategoryNode node)
     {
         if (node.Page is { } page)
         {
