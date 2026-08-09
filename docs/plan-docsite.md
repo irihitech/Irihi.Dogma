@@ -34,32 +34,37 @@ ViewModel 的声明式配置（Attribute），自动获得**完整的导航与�
 
 ```csharp
 // 分类节点：声明层级 + 成员页面（归属唯一来源；可嵌套任意深度）
-// 语义：分类 = 容器；LandingPage 使分类本身可点击，Pages 是其成员页面
-[DocCategory(Key = "Docs.Controls", Order = 1,
-            LandingPage = typeof(ControlsOverviewViewModel))]
+// 语义：分类 = 容器；同时标 [DocCategory] 与 [DocPage] 的 VM = 该分类的落地页（可点击）
+[DocCategory(Key = "Docs.Controls", Order = 1)]
 [DocCategory(Key = "Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1,
             Pages = new[] { typeof(ButtonViewModel), typeof(TextBoxViewModel) })]
 // 未声明即被引用的父节点会隐式创建为纯分组节点
 
-// 页面：纯自我描述，无 CategoryKey、无任何分类信息（归属由分类侧声明）
+// 页面：纯自我描述，无分类信息（归属由分类侧声明）
 [DocPage(TitleKey = "Docs.Button.Title",
          View = typeof(ButtonView),          // VM 知道自己关联的 View
          Order = 1,
          Keywords = new[] { "click", "action" })]
 public sealed partial class ButtonViewModel { }
+
+// 分类落地页：同一 VM 同时标两个 Attribute（SG 共存消费）
+[DocCategory(Key = "Docs.Controls.Input", Parent = "Docs.Controls", Order = 2)]
+[DocPage(TitleKey = "Docs.Input.Title", View = typeof(InputView), Order = 1)]
+public sealed partial class InputViewModel { }
 ```
 
 | 参数 | 用途 |
 |---|---|
 | `[DocCategory]`：`Key` / `Parent` / `Order` | 分类节点：Lingua 键作标题，Parent 链构成多级树，Order 同级排序；顶层 Parent 省略 |
-| `[DocCategory]`：`LandingPage` | 该分类自身的落地页 VM（分类可点击）；null = 纯分组 |
 | `[DocCategory]`：`Pages` | 该分类的成员页面 VM 集合 |
 | `[DocPage]`：`TitleKey` / `Title` | 页面标题键 + 可选 fallback 字面量 |
 | `[DocPage]`：`View` | 该 VM 关联的 View 类型（供 GeneratedViewLocator 静态映射） |
 | `[DocPage]`：`Order` / `Keywords` | 页面排序 / 搜索关键字（不随文化变） |
 
-**归属唯一性**：页面属于哪个分类完全由 `[DocCategory]` 的 `LandingPage`/`Pages` 决定；
-一个 VM 只允许被一个分类引用（SG 校验 DOGDOC005），`DocPage` 不携带分类信息（无重复）。
+**归属唯一性**：页面属于哪个分类完全由 `[DocCategory]` 的 `Pages` 决定；
+一个 VM 只允许被一个分类引用（SG 校验 DOGDOC005）。**落地页无独立参数**：
+VM 同时带 `[DocCategory]` 与 `[DocPage]` 即成为该分类的落地页（分类可点击）——
+两个 Attribute 由同一 SG 共存消费，无需 `LandingPage` 这种冗余声明。
 
 ## 2. 生成层（AOT 关键）
 
@@ -75,8 +80,8 @@ public static partial class GeneratedDocPages
     {
         registry.AddCategory(new DocCategoryMetadata(
             "Docs.Controls", parentKey: null, order: 1,
-            landingPage: typeof(ControlsOverviewViewModel),
             pages: new[] { typeof(ButtonViewModel), typeof(TextBoxViewModel) }));
+        // 落地页无独立参数：VM 同时带 [DocCategory]+[DocPage] 时，SG 推断为该分类落地页
         registry.AddPage(new DocPageMetadata(
             "Docs.Button.Title",
             typeof(ButtonView), 1, new[] { "click" }, null,
@@ -110,7 +115,7 @@ public sealed partial class GeneratedViewLocator : IDataTemplate
 - **编译期引用完整性校验（SG 集成管理的价值）**：
   - `Parent` 指向**未声明**的 key → **不报错**：被引用即自动**隐式创建**为
     纯分组节点（不可点击，标题键 = key 本身，Lingua 无键时 fallback key 字面量）
-  - `[DocCategory]` 的 `LandingPage`/`Pages` 引用**未标记 `[DocPage]` 的类型** → 编译错误
+  - `[DocCategory]` 的 `Pages` 引用**未标记 `[DocPage]` 的类型** → 编译错误
     DOGDOC004（分类成员必须是文档页面）
   - 一个 VM 被**多个分类**引用 → 编译错误 DOGDOC005（归属唯一）
   - 分类树**成环**（A→B→A）→ 编译错误 DOGDOC002（真问题，杜绝无限递归）
@@ -123,8 +128,8 @@ public sealed partial class GeneratedViewLocator : IDataTemplate
 
 - `AddCategory`/`AddPage`（由生成的 `GeneratedDocPages.Register` 调用）
 - 树构建：按 `Parent` 链组装分类树（任意深度），**未显式声明的分类节点运行时隐式创建**
-  （纯分组、不可点击）；**页面从分类的 `LandingPage`/`Pages` 挂载**；同级按 `Order` 排序，
-  未声明 `Order` 的按注册顺序
+  （纯分组、不可点击）；**页面从分类的 `Pages` 挂载，落地页 = 同时带两个 Attribute 的
+  分类 VM**；同级按 `Order` 排序，未声明 `Order` 的按注册顺序
 - **VM 获取走 `IViewModelProvider`（创建能力与获取语义分离）**：
   - `DocPageMetadata.ViewModelFactory`（SG 生成 `() => new XxxViewModel()`）只是“创建能力”
   - `DocSite.ViewModelProvider` 决定“获取语义”：默认每次新建；宿主注入带缓存的实现
