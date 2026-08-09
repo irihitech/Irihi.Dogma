@@ -33,17 +33,16 @@ ViewModel 的声明式配置（Attribute），自动获得**完整的导航与�
 ## 1. 标记层（分类与页面分开标记，均标在任意类型上）
 
 ```csharp
-// 分类节点（可嵌套任意深度；Key 即 Lingua 键，Parent 指向父分类键，Order 控制同级顺序）
-// 语义：分类 = 容器（默认不可点击）；未声明即被引用的父节点会隐式创建为纯分组节点
-[DocCategory(Key = "Docs.Controls", Order = 1)]
-[DocCategory(Key = "Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1)]
-// 分类可选关联落地页：挂了 LandingPage 的分类本身可点击（如总览页）
-[DocCategory(Key = "Docs.Controls.Input", Parent = "Docs.Controls", Order = 2,
+// 分类节点：声明层级 + 成员页面（归属唯一来源；可嵌套任意深度）
+// 语义：分类 = 容器；LandingPage 使分类本身可点击，Pages 是其成员页面
+[DocCategory(Key = "Docs.Controls", Order = 1,
             LandingPage = typeof(ControlsOverviewViewModel))]
+[DocCategory(Key = "Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1,
+            Pages = new[] { typeof(ButtonViewModel), typeof(TextBoxViewModel) })]
+// 未声明即被引用的父节点会隐式创建为纯分组节点
 
-// 页面挂到叶子（或任意层）分类下
+// 页面：纯自我描述，无 CategoryKey、无任何分类信息（归属由分类侧声明）
 [DocPage(TitleKey = "Docs.Button.Title",
-         CategoryKey = "Docs.Controls.Buttons",
          View = typeof(ButtonView),          // VM 知道自己关联的 View
          Order = 1,
          Keywords = new[] { "click", "action" })]
@@ -53,13 +52,14 @@ public sealed partial class ButtonViewModel { }
 | 参数 | 用途 |
 |---|---|
 | `[DocCategory]`：`Key` / `Parent` / `Order` | 分类节点：Lingua 键作标题，Parent 链构成多级树，Order 同级排序；顶层 Parent 省略 |
-| `[DocPage]`：`TitleKey` / `CategoryKey` | 页面标题键 + 所挂分类键 |
-| `Title`（可选 fallback） | 页面键缺失时兜底显示的字面量，非 resx |
-| `View` | 该 VM 关联的 View 类型（供生成的 ViewLocator 静态映射） |
-| `Order` | 同分类下页面排序 |
-| `Keywords` | 补充搜索关键字（不随文化变） |
+| `[DocCategory]`：`LandingPage` | 该分类自身的落地页 VM（分类可点击）；null = 纯分组 |
+| `[DocCategory]`：`Pages` | 该分类的成员页面 VM 集合 |
+| `[DocPage]`：`TitleKey` / `Title` | 页面标题键 + 可选 fallback 字面量 |
+| `[DocPage]`：`View` | 该 VM 关联的 View 类型（供 GeneratedViewLocator 静态映射） |
+| `[DocPage]`：`Order` / `Keywords` | 页面排序 / 搜索关键字（不随文化变） |
 
-**不包含**：页面声明不携带分类层级——层级完全由 `[DocCategory]` 显式控制。
+**归属唯一性**：页面属于哪个分类完全由 `[DocCategory]` 的 `LandingPage`/`Pages` 决定；
+一个 VM 只允许被一个分类引用（SG 校验 DOGDOC005），`DocPage` 不携带分类信息（无重复）。
 
 ## 2. 生成层（AOT 关键）
 
@@ -73,10 +73,12 @@ public static partial class GeneratedDocPages
 {
     public static void Register(IDocRegistry registry)
     {
-        registry.AddCategory(new DocCategoryMetadata("Docs.Controls", parentKey: null, order: 1));
-        registry.AddCategory(new DocCategoryMetadata("Docs.Controls.Buttons", "Docs.Controls", 1));
+        registry.AddCategory(new DocCategoryMetadata(
+            "Docs.Controls", parentKey: null, order: 1,
+            landingPage: typeof(ControlsOverviewViewModel),
+            pages: new[] { typeof(ButtonViewModel), typeof(TextBoxViewModel) }));
         registry.AddPage(new DocPageMetadata(
-            "Docs.Button.Title", "Docs.Controls.Buttons",
+            "Docs.Button.Title",
             typeof(ButtonView), 1, new[] { "click" }, null,
             viewModelFactory: () => new ButtonViewModel()));   // 编译期 new
     }
@@ -106,10 +108,13 @@ public sealed partial class GeneratedViewLocator : IDataTemplate
   `ContentControl` 绑当前 VM 即可自动呈现对应 View
 - 类型引用、`new` 调用全部编译期写死 → **NativeAOT 安全**；增量生成
 - **编译期引用完整性校验（SG 集成管理的价值）**：
-  - `Parent`/`CategoryKey` 指向**未声明**的 key → **不报错**：被引用即自动**隐式创建**为
+  - `Parent` 指向**未声明**的 key → **不报错**：被引用即自动**隐式创建**为
     纯分组节点（不可点击，标题键 = key 本身，Lingua 无键时 fallback key 字面量）
+  - `[DocCategory]` 的 `LandingPage`/`Pages` 引用**未标记 `[DocPage]` 的类型** → 编译错误
+    DOGDOC004（分类成员必须是文档页面）
+  - 一个 VM 被**多个分类**引用 → 编译错误 DOGDOC005（归属唯一）
   - 分类树**成环**（A→B→A）→ 编译错误 DOGDOC002（真问题，杜绝无限递归）
-  - `Parent`/`CategoryKey` 引用**页面 VM 类型**（把页面当分类）→ 编译错误 DOGDOC003（类型不匹配）
+  - `Parent` 引用**页面 VM 类型**（把页面当分类）→ 编译错误 DOGDOC003（类型不匹配）
 - **不读 resx、不烘焙、不键校验**（键正确性由 Lingua 编译期保证）
 
 ## 3. 运行时层
@@ -118,7 +123,8 @@ public sealed partial class GeneratedViewLocator : IDataTemplate
 
 - `AddCategory`/`AddPage`（由生成的 `GeneratedDocPages.Register` 调用）
 - 树构建：按 `Parent` 链组装分类树（任意深度），**未显式声明的分类节点运行时隐式创建**
-  （纯分组、不可点击），页面挂到所声明的分类；同级按 `Order` 排序，未声明 `Order` 的按注册顺序
+  （纯分组、不可点击）；**页面从分类的 `LandingPage`/`Pages` 挂载**；同级按 `Order` 排序，
+  未声明 `Order` 的按注册顺序
 - **VM 获取走 `IViewModelProvider`（创建能力与获取语义分离）**：
   - `DocPageMetadata.ViewModelFactory`（SG 生成 `() => new XxxViewModel()`）只是“创建能力”
   - `DocSite.ViewModelProvider` 决定“获取语义”：默认每次新建；宿主注入带缓存的实现
