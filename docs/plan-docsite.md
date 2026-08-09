@@ -35,18 +35,21 @@ ViewModel 的声明式配置（Attribute），自动获得**完整的导航与�
 ## 1. 标记层（共存模型）
 
 ```csharp
-// 纯分组节点（不可点击、无页面；未声明即被引用的父节点也会隐式创建）
-[DocCategory(Key = "Docs.Controls", Order = 1)]
+// 容器节点：IsClickable 显式声明可点击性（与层级无关，最上层也可点击）
+[DocCategory(Key = "Docs.Controls", Order = 1, IsClickable = false,
+            Tags = new[] { "group", "layout" })]
 
 // 可点击节点：共存 = 分类节点携带页面，零归属声明
-[DocCategory(Key = "Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1)]
+[DocCategory(Key = "Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1,
+            IsClickable = true)]
 [DocPage(TitleKey = "Docs.Button.Title",
          View = typeof(ButtonView),          // VM 知道自己关联的 View
          Keywords = new[] { "click", "action" })]
 public sealed partial class ButtonViewModel { }
 
-// 多级/同级多个页面 = 分类树每个节点绑定一个页面（或纯分组）
-[DocCategory(Key = "Docs.Controls.Input", Parent = "Docs.Controls", Order = 2)]
+// 多级/同级多个页面 = 分类树每个节点绑定一个页面（或纯容器）
+[DocCategory(Key = "Docs.Controls.Input", Parent = "Docs.Controls", Order = 2,
+            IsClickable = true)]
 [DocPage(TitleKey = "Docs.Input.Title", View = typeof(InputView))]
 public sealed partial class InputViewModel { }
 ```
@@ -56,12 +59,16 @@ public sealed partial class InputViewModel { }
 | `[DocCategory]` | `Key` | 分类节点标识（Lingua 键作标题） |
 | | `Parent` | 父分类键（顶层省略） |
 | | `Order` | 同级排序 |
+| | `IsClickable` | 是否可点击（显式声明，与层级/页面无关；默认 false） |
+| | `Tags` | 标签数组（跨文化稳定，烘焙进 metadata，供应用需求消费：过滤/分组/UI 标记） |
 | `[DocPage]` | `TitleKey` / `Title` | 页面标题键 + 可选 fallback 字面量 |
 | | `View` | 关联 View 类型（供 GeneratedViewLocator 静态映射） |
 | | `Keywords` | 搜索关键字（不随文化变） |
 
 **关联规则（唯一）**：两个 Attribute 标在同一 VM 上 = 该分类节点携带该页面。
 没有 CategoryKey / Pages / LandingPage——归属零冗余声明。
+**可点击性独立**：由 `IsClickable` 显式决定，与节点是否有父级/是否携带页面无关
+（顶层节点、带页面的节点均可点击或不可点击）。
 
 ## 2. 生成层（AOT 关键）
 
@@ -75,8 +82,9 @@ public static partial class GeneratedDocPages
 {
     public static void Register(IDocRegistry registry)
     {
-        // 纯分组
-        registry.AddCategory(new DocCategoryMetadata("Docs.Controls", parentKey: null, order: 1));
+        // 容器节点（IsClickable 显式声明）
+        registry.AddCategory(new DocCategoryMetadata("Docs.Controls", parentKey: null, order: 1,
+            isClickable: false, tags: new[] { "group" }));
         // 共存节点：一个 VM 同时注册分类与页面（Page 由 SG 从共存推断绑定）
         registry.AddCategory(new DocCategoryMetadata("Docs.Controls.Buttons", "Docs.Controls", 1,
             page: new DocPageMetadata(
@@ -111,8 +119,8 @@ public sealed partial class GeneratedViewLocator : IDataTemplate
 - **编译期校验（SG 集成管理的价值）**：
   - 分类树**成环**（A→B→A）→ 编译错误 DOGDOC002
   - 分类 `Key` **重复声明** → 编译错误 DOGDOC003（Key 必须唯一）
-  - `Parent` 指向**未声明**的 key → **不报错**：被引用即自动隐式创建纯分组节点
-    （标题键 = key 本身，Lingua 无键时 fallback key 字面量）
+  - `Parent` 指向**未声明**的 key → **不报错**：被引用即自动隐式创建容器节点
+    （`IsClickable = false`、`Tags` 空，标题键 = key 本身，Lingua 无键时 fallback key 字面量）
 - **不读 resx、不烘焙、不键校验**（键正确性由 Lingua 编译期保证）
 
 ## 数据模型（SG 生成代码与运行时对象）
@@ -128,6 +136,8 @@ public sealed class DocCategoryAttribute(string key) : Attribute
     public string Key { get; } = key;         // Lingua 键（分类标题）
     public string? Parent { get; init; }      // 父分类键；null = 顶层
     public int Order { get; init; }           // 同级排序
+    public bool IsClickable { get; init; }    // 显式可点击性（与层级/页面无关，默认 false）
+    public string[]? Tags { get; init; }      // 标签（烘焙进 metadata，供应用消费）
 }
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
@@ -148,8 +158,10 @@ public sealed class DocCategoryMetadata
     public required string Key { get; init; }        // Lingua 键（分类标题）
     public string? ParentKey { get; init; }          // null = 顶层
     public int Order { get; init; }
-    public bool IsExplicit { get; init; }            // false = 被引用而隐式创建的纯分组
-    public DocPageMetadata? Page { get; init; }      // 共存 VM 的页面；null = 纯分组
+    public bool IsClickable { get; init; }           // 显式可点击性（默认 false）
+    public IReadOnlyList<string> Tags { get; init; } = [];   // 供应用消费
+    public bool IsExplicit { get; init; }            // false = 被引用而隐式创建的容器节点
+    public DocPageMetadata? Page { get; init; }      // 共存 VM 的页面；null = 无页面
 }
 
 public sealed class DocPageMetadata
@@ -168,7 +180,7 @@ public sealed class DocPageMetadata
 ```csharp
 public interface IDocRegistry
 {
-    void AddCategory(DocCategoryMetadata category);   // 分类节点（Page 可空 = 纯分组）
+    void AddCategory(DocCategoryMetadata category);   // 分类节点（Page 可空 = 无页面）
 }
 ```
 
@@ -181,8 +193,8 @@ public sealed class DocCategoryNode
     public IObservable<string?> Title { get; init; }          // GetObservable(Key)，UI `^` 绑定
     public DocCategoryNode? Parent { get; init; }
     public IReadOnlyList<DocCategoryNode> Children { get; init; } = [];  // 已按 Order 排序
-    public DocPageNode? Page { get; init; }                   // null = 纯分组（不可点击）
-    public bool IsClickable => Page is not null;
+    public DocPageNode? Page { get; init; }                   // null = 无页面
+    public bool IsClickable => Metadata.IsClickable;          // 显式声明，非推断
 }
 
 public sealed class DocPageNode
@@ -215,7 +227,8 @@ public sealed class DocSite : IDocRegistry
   metadata 只存键 + fallback
 - **共存绑定**：`DocCategoryMetadata.Page` 由 SG 从"同一 VM 同时带两个 Attribute"推断填充，
   用户侧零关联声明
-- **可点击性**：`IsClickable = Page is not null`；隐式分组节点无页面
+- **可点击性**：由 `Metadata.IsClickable` 显式声明（与层级/页面无关）；隐式创建的容器节点
+  `IsClickable = false`、`Tags` 为空
 - **AOT**：`Func<object>` 工厂编译期生成、`typeof` 编译期写死
 
 ## 3. 运行时层
@@ -224,7 +237,7 @@ public sealed class DocSite : IDocRegistry
 
 - `AddCategory`（由生成的 `GeneratedDocPages.Register` 调用；页面内嵌于分类元数据的 `Page`）
 - 树构建：按 `Parent` 链组装分类树（任意深度），**未显式声明的分类节点运行时隐式创建**
-  （纯分组、不可点击）；**共存 VM 的页面绑定到其分类节点**；同级按 `Order` 排序
+  （`IsClickable = false` 的容器）；**共存 VM 的页面绑定到其分类节点**；同级按 `Order` 排序
 - **VM 获取走 `IViewModelProvider`（创建能力与获取语义分离）**：
   - `DocPageMetadata.ViewModelFactory`（SG 生成 `() => new XxxViewModel()`）只是"创建能力"
   - `DocSite.ViewModelProvider` 决定"获取语义"：默认每次新建；宿主注入带缓存的实现
