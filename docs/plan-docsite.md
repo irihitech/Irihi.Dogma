@@ -39,17 +39,15 @@ ViewModel 的声明式配置（Attribute），自动获得**完整的导航与�
 [DocCategory(Key = "Docs.Controls", Order = 1, IsClickable = false,
             Tags = new[] { "group", "layout" })]
 
-// 可点击节点：共存 = 分类节点携带页面，零归属声明
-[DocCategory(Key = "Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1,
-            IsClickable = true)]
+// 可点击节点：默认 IsClickable = true，无需显式；共存 = 分类节点携带页面
+[DocCategory(Key = "Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1)]
 [DocPage(TitleKey = "Docs.Button.Title",
          View = typeof(ButtonView),          // VM 知道自己关联的 View
          Keywords = new[] { "click", "action" })]
 public sealed partial class ButtonViewModel { }
 
 // 多级/同级多个页面 = 分类树每个节点绑定一个页面（或纯容器）
-[DocCategory(Key = "Docs.Controls.Input", Parent = "Docs.Controls", Order = 2,
-            IsClickable = true)]
+[DocCategory(Key = "Docs.Controls.Input", Parent = "Docs.Controls", Order = 2)]
 [DocPage(TitleKey = "Docs.Input.Title", View = typeof(InputView))]
 public sealed partial class InputViewModel { }
 ```
@@ -59,7 +57,7 @@ public sealed partial class InputViewModel { }
 | `[DocCategory]` | `Key` | 分类节点标识（Lingua 键作标题） |
 | | `Parent` | 父分类键（顶层省略） |
 | | `Order` | 同级排序 |
-| | `IsClickable` | 是否可点击（显式声明，与层级/页面无关；默认 false） |
+| | `IsClickable` | 是否可点击（显式声明，与层级/页面无关；**默认 true**） |
 | | `Tags` | 标签数组（跨文化稳定，烘焙进 metadata，供应用需求消费：过滤/分组/UI 标记） |
 | `[DocPage]` | `TitleKey` / `Title` | 页面标题键 + 可选 fallback 字面量 |
 | | `View` | 关联 View 类型（供 GeneratedViewLocator 静态映射） |
@@ -136,7 +134,7 @@ public sealed class DocCategoryAttribute(string key) : Attribute
     public string Key { get; } = key;         // Lingua 键（分类标题）
     public string? Parent { get; init; }      // 父分类键；null = 顶层
     public int Order { get; init; }           // 同级排序
-    public bool IsClickable { get; init; }    // 显式可点击性（与层级/页面无关，默认 false）
+    public bool IsClickable { get; init; }    // 显式可点击性（与层级/页面无关，默认 true）
     public string[]? Tags { get; init; }      // 标签（烘焙进 metadata，供应用消费）
 }
 
@@ -158,7 +156,7 @@ public sealed class DocCategoryMetadata
     public required string Key { get; init; }        // Lingua 键（分类标题）
     public string? ParentKey { get; init; }          // null = 顶层
     public int Order { get; init; }
-    public bool IsClickable { get; init; }           // 显式可点击性（默认 false）
+    public bool IsClickable { get; init; } = true;   // 显式可点击性（默认 true）
     public IReadOnlyList<string> Tags { get; init; } = [];   // 供应用消费
     public bool IsExplicit { get; init; }            // false = 被引用而隐式创建的容器节点
     public DocPageMetadata? Page { get; init; }      // 共存 VM 的页面；null = 无页面
@@ -227,7 +225,7 @@ public sealed class DocSite : IDocRegistry
   metadata 只存键 + fallback
 - **共存绑定**：`DocCategoryMetadata.Page` 由 SG 从"同一 VM 同时带两个 Attribute"推断填充，
   用户侧零关联声明
-- **可点击性**：由 `Metadata.IsClickable` 显式声明（与层级/页面无关）；隐式创建的容器节点
+- **可点击性**：由 `Metadata.IsClickable` 显式声明（默认 true，与层级/页面无关）；隐式创建的容器节点
   `IsClickable = false`、`Tags` 为空
 - **AOT**：`Func<object>` 工厂编译期生成、`typeof` 编译期写死
 
