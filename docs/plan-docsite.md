@@ -34,8 +34,12 @@ ViewModel 的声明式配置（Attribute），自动获得**完整的导航与�
 
 ```csharp
 // 分类节点（可嵌套任意深度；Key 即 Lingua 键，Parent 指向父分类键，Order 控制同级顺序）
+// 语义：分类 = 容器（默认不可点击）；未声明即被引用的父节点会隐式创建为纯分组节点
 [DocCategory(Key = "Docs.Controls", Order = 1)]
 [DocCategory(Key = "Docs.Controls.Buttons", Parent = "Docs.Controls", Order = 1)]
+// 分类可选关联落地页：挂了 LandingPage 的分类本身可点击（如总览页）
+[DocCategory(Key = "Docs.Controls.Input", Parent = "Docs.Controls", Order = 2,
+            LandingPage = typeof(ControlsOverviewViewModel))]
 
 // 页面挂到叶子（或任意层）分类下
 [DocPage(TitleKey = "Docs.Button.Title",
@@ -101,8 +105,11 @@ public sealed partial class GeneratedViewLocator : IDataTemplate
 - 宿主接入：`DataTemplates.Add(new GeneratedViewLocator())`（App 级），
   `ContentControl` 绑当前 VM 即可自动呈现对应 View
 - 类型引用、`new` 调用全部编译期写死 → **NativeAOT 安全**；增量生成
-- **编译期引用完整性校验（SG 集成管理的价值）**：`[DocCategory]` 的 `Parent` 指向未声明
-  分类、`[DocPage]` 的 `CategoryKey` 指向未声明分类 → 编译错误（DOGDOC002/003）
+- **编译期引用完整性校验（SG 集成管理的价值）**：
+  - `Parent`/`CategoryKey` 指向**未声明**的 key → **不报错**：被引用即自动**隐式创建**为
+    纯分组节点（不可点击，标题键 = key 本身，Lingua 无键时 fallback key 字面量）
+  - 分类树**成环**（A→B→A）→ 编译错误 DOGDOC002（真问题，杜绝无限递归）
+  - `Parent`/`CategoryKey` 引用**页面 VM 类型**（把页面当分类）→ 编译错误 DOGDOC003（类型不匹配）
 - **不读 resx、不烘焙、不键校验**（键正确性由 Lingua 编译期保证）
 
 ## 3. 运行时层
@@ -110,8 +117,8 @@ public sealed partial class GeneratedViewLocator : IDataTemplate
 ### DocSite（注册表 + 核心逻辑）
 
 - `AddCategory`/`AddPage`（由生成的 `GeneratedDocPages.Register` 调用）
-- 树构建：按 `Parent` 链组装分类树（任意深度），页面挂到所声明的分类；
-  同级按 `Order` 排序，未声明 `Order` 的按注册顺序
+- 树构建：按 `Parent` 链组装分类树（任意深度），**未显式声明的分类节点运行时隐式创建**
+  （纯分组、不可点击），页面挂到所声明的分类；同级按 `Order` 排序，未声明 `Order` 的按注册顺序
 - `Navigate(page)`：生成 VM 实例（编译期工厂），暴露当前 VM
 - `Search(query)`：消费 Lingua observable 的当前文化文本（标题/分类）+ Keywords
 
