@@ -77,6 +77,44 @@ public class DocSite : IDocRegistry
             .ToList();
     }
 
+    /// <summary>
+    /// 按分类 Key 获取其共存页面的 VM 实例（经 <see cref="ViewModelProvider"/>）；
+    /// Key 不存在或该分类节点无页面时返回 null。
+    /// </summary>
+    public object? GetViewModel(string key)
+    {
+        foreach (var root in Roots)
+        {
+            if (TryFindPage(root, key, out var page))
+            {
+                return page is null ? null : ViewModelProvider.GetViewModel(page);
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>树中查找 Key 对应的分类节点及其共存页面。</summary>
+    private static bool TryFindPage(DocCategoryNode node, string key, out DocPageNode? page)
+    {
+        if (node.Metadata.Key == key)
+        {
+            page = node.Page;
+            return true;
+        }
+
+        foreach (var child in node.Children)
+        {
+            if (TryFindPage(child, key, out page))
+            {
+                return true;
+            }
+        }
+
+        page = null;
+        return false;
+    }
+
     /// <summary>搜索加权评分（子类可 override 自定义匹配逻辑）。</summary>
     protected virtual int Score(DocPageNode page, string[] parts)
     {
