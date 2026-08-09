@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk" TreatAsLocalProperty="PublishAot">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -8,6 +8,8 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <NoWarn>$(NoWarn);RS2008</NoWarn>
     <IsPublishable>false</IsPublishable>
+    <!-- netstandard2.0 不支持 NativeAOT：即使命令行传入 PublishAot=true 也保持关闭 -->
+    <PublishAot>false</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>
