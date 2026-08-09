@@ -4,6 +4,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Irihi.Dogma/Irihi.Dogma.csproj"/>
+    <Project Path="src/Irihi.Dogma.Docs.Generator/Irihi.Dogma.Docs.Generator.csproj"/>
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/Irihi.Dogma.Tests/Irihi.Dogma.Tests.csproj"/>
