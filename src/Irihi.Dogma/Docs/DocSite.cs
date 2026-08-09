@@ -7,11 +7,8 @@ namespace Irihi.Dogma.Docs;
 /// 可继承：每个项目可创建自己的 DocSite 子类承载独立注册与库特定扩展
 /// （注册经 <see cref="IDocRegistry"/> 参数化，不绑定全局实例）。
 /// </summary>
-public class DocSite : IDocRegistry
+public abstract class DocSite : IDocRegistry
 {
-    /// <summary>全局实例（宿主持有并注入 LinguaManager / ViewModelProvider）。</summary>
-    public static DocSite Instance { get; } = new();
-
     private readonly List<DocCategoryMetadata> _categories = [];
     private IReadOnlyList<DocCategoryNode>? _roots;
 
@@ -180,7 +177,7 @@ public class DocSite : IDocRegistry
     protected virtual IObservable<string?> ResolveTitle(string key, string fallback)
     {
         var observable = LinguaManager?.GetObservable(key);
-        return observable ?? new ObservableValue<string?>(fallback);
+        return observable ?? LinguaObservableString.FromLiteral(fallback);
     }
 
     /// <summary>树遍历收集页面（子类可 override 定制收集规则）。</summary>

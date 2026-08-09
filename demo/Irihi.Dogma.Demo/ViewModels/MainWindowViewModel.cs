@@ -28,9 +28,9 @@ public partial class MainWindowViewModel : ObservableObject
 {
     private readonly DocSite _site;
 
-    public MainWindowViewModel(DocSite site)
+    public MainWindowViewModel()
     {
-        _site = site;
+        _site = DemoDocSite.Default;
     }
 
     /// <summary>是否使用亮色主题（演示 Avalonia 原生 RequestedThemeVariant 切换）。</summary>

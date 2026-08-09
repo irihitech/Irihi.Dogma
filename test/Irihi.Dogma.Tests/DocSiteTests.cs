@@ -39,7 +39,7 @@ public class DocSiteTests
 
     private static DocSite CreateSite(params DocCategoryMetadata[] categories)
     {
-        var site = new DocSite();
+        var site = new DefaultDocSite();
         foreach (var c in categories)
         {
             site.AddCategory(c);
@@ -181,7 +181,7 @@ public class DocSiteTests
     [Fact]
     public void TreeChanged_Raised_On_AddCategory()
     {
-        var site = new DocSite();
+        var site = new DefaultDocSite();
         var raised = 0;
         site.TreeChanged += () => raised++;
         site.AddCategory(Cat("A"));
@@ -270,4 +270,9 @@ public class DocSiteTests
                 : _cache[type] = page.Metadata.ViewModelFactory();
         }
     }
+}
+
+public class DefaultDocSite : DocSite
+{
+    
 }
