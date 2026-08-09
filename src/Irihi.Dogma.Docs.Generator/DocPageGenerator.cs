@@ -31,11 +31,6 @@ public sealed class DocPageGenerator : IIncrementalGenerator
         "Category key '{0}' is declared more than once",
         "Irihi.Dogma.Docs", DiagnosticSeverity.Error, isEnabledByDefault: true);
 
-    private static readonly DiagnosticDescriptor MissingViewError = new(
-        "DOGDOC006", "DocPage requires a View",
-        "DocPage '{0}' must specify View = typeof(...)",
-        "Irihi.Dogma.Docs", DiagnosticSeverity.Error, isEnabledByDefault: true);
-
     private static readonly DiagnosticDescriptor OrphanPageWarning = new(
         "DOGDOC007", "DocPage without DocCategory",
         "DocPage '{0}' is not co-attributed with [DocCategory] and is ignored",
@@ -216,14 +211,6 @@ public sealed class DocPageGenerator : IIncrementalGenerator
 
         DetectCycles(cats, spc);
 
-        foreach (var page in cats.Where(c => c.Page is not null).Select(c => c.Page!))
-        {
-            if (page.ViewTypeName is null)
-            {
-                spc.ReportDiagnostic(Diagnostic.Create(MissingViewError, page.Location, page.TitleKey));
-            }
-        }
-
         foreach (var page in pages.Where(p => p is not null).Select(p => p!))
         {
             // 已由共存收集的页面不计
@@ -271,7 +258,7 @@ public sealed class DocPageGenerator : IIncrementalGenerator
                 sb.Append("                TitleKey = ").Append(Literal(page.TitleKey)).AppendLine(",");
                 sb.Append("                FallbackTitle = ").Append(Literal(page.FallbackTitle)).AppendLine(",");
                 sb.Append("                ViewModelType = typeof(").Append(page.VmTypeName).AppendLine("),");
-                sb.Append("                ViewType = typeof(").Append(page.ViewTypeName).AppendLine("),");
+                sb.Append("                ViewType = ").Append(page.ViewTypeName is null ? "null" : "typeof(" + page.ViewTypeName + ")").AppendLine(",");
                 if (page.Keywords.Length > 0)
                 {
                     sb.Append("                Keywords = ").Append(LiteralArray(page.Keywords)).AppendLine(",");
@@ -290,7 +277,11 @@ public sealed class DocPageGenerator : IIncrementalGenerator
 
     private static void AppendViewLocator(StringBuilder sb, ImmutableArray<CategoryInfo> cats)
     {
-        var pages = cats.Where(c => c.Page is not null).Select(c => (c.Page!, c.VmTypeName)).ToImmutableArray();
+        // 仅映射有 View 的页面（容器/仅标题页面无 View，不进 ViewLocator）
+        var pages = cats
+            .Where(c => c.Page is { ViewTypeName: not null })
+            .Select(c => (c.Page!, c.VmTypeName))
+            .ToImmutableArray();
         sb.AppendLine("public sealed partial class GeneratedViewLocator : global::Avalonia.Controls.Templates.IDataTemplate");
         sb.AppendLine("{");
         sb.AppendLine("    public global::Avalonia.Controls.Control? Build(object? param) => param switch");

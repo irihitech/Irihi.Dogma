@@ -61,7 +61,7 @@ public sealed partial class InputViewModel { }
 | | `IsClickable` | 是否可点击（显式声明，与层级/页面无关；**默认 true**） |
 | | `Tags` | 标签数组（跨文化稳定，烘焙进 metadata，供应用需求消费：过滤/分组/UI 标记） |
 | `[DocPage]` | `TitleKey` / `Title` | 页面标题键 + 可选 fallback 字面量 |
-| | `View` | 关联 View 类型（供 GeneratedViewLocator 静态映射） |
+| | `View` | 关联 View 类型（供 GeneratedViewLocator 静态映射）；**可选**——仅标题/容器页面（如纯分类的落地页）可省略，不进 ViewLocator |
 | | `Keywords` | 搜索关键字（不随文化变） |
 
 **关联规则（唯一）**：两个 Attribute 标在同一 VM 上 = 该分类节点携带该页面。
@@ -132,7 +132,7 @@ namespace Irihi.Dogma.Docs;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public sealed class DocCategoryAttribute(string key) : Attribute
 {
-    public string Key { get; } = key;         // Lingua 键（分类标题）
+    public string Key { get; } = key;         // 内部标识（Parent 链引用，非标题来源）
     public string? Parent { get; init; }      // 父分类键；null = 顶层
     public int Order { get; init; }           // 同级排序
     public bool IsClickable { get; init; }    // 显式可点击性（与层级/页面无关，默认 true）
@@ -154,7 +154,7 @@ public sealed class DocPageAttribute(string titleKey) : Attribute
 ```csharp
 public sealed class DocCategoryMetadata
 {
-    public required string Key { get; init; }        // Lingua 键（分类标题）
+    public required string Key { get; init; }        // 内部标识（Parent 链引用，非标题来源）
     public string? ParentKey { get; init; }          // null = 顶层
     public int Order { get; init; }
     public bool IsClickable { get; init; } = true;   // 显式可点击性（默认 true）
@@ -189,7 +189,7 @@ public interface IDocRegistry
 public sealed class DocCategoryNode
 {
     public required DocCategoryMetadata Metadata { get; init; }
-    public IObservable<string?> Title { get; init; }          // GetObservable(Key)，UI `^` 绑定
+    public IObservable<string?> Title { get; init; }          // 共存页面标题（无页面容器 fallback Key），UI `^` 绑定
     public DocCategoryNode? Parent { get; init; }
     public IReadOnlyList<DocCategoryNode> Children { get; init; } = [];  // 已按 Order 排序
     public DocPageNode? Page { get; init; }                   // null = 无页面
@@ -291,7 +291,7 @@ DataTemplates.Add(new GeneratedViewLocator());
 
 ## 风险备注
 
-- View 类型由 `[DocPage(View = typeof(...))]` 编译期指定，GeneratedViewLocator 静态
+- View 类型由 `[DocPage(View = typeof(...))]` 编译期指定（可选：仅标题/容器页面省略），GeneratedViewLocator 静态
   switch 一一映射（类型安全，无命名约定）；View 需公共无参构造（SG 生成 `new`，
   编译期强制）。仅当 ContentControl 收到**未注册的 VM 类型**时 `Build` 返回 null
   （预期 fallback，Avalonia 提示无匹配模板）

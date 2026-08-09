@@ -7,7 +7,7 @@ namespace Irihi.Dogma.Docs;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public sealed class DocCategoryAttribute(string key) : Attribute
 {
-    /// <summary>分类节点标识（Lingua 键，作为标题来源）。</summary>
+    /// <summary>分类节点内部标识（Parent 链引用用；标题来自共存页面的 TitleKey）。</summary>
     public string Key { get; } = key;
 
     /// <summary>父分类键；null = 顶层节点。</summary>

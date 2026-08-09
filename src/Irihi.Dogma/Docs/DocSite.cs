@@ -128,14 +128,18 @@ public sealed class DocSite : IDocRegistry
             }
         }
 
-        // 3. 建分类节点（页面稍后挂载，因需引用分类节点自身）
+        // 3. 建分类节点：标题 = 共存页面标题（菜单显示直接用页面 Title）；
+        //    无页面的容器节点 fallback 到 Key 字面量
         var nodes = new Dictionary<string, DocCategoryNode>(StringComparer.Ordinal);
         foreach (var meta in byKey.Values)
         {
+            var title = meta.Page is { } pageMeta
+                ? ResolveTitle(pageMeta.TitleKey, pageMeta.FallbackTitle ?? pageMeta.TitleKey)
+                : ResolveTitle(meta.Key, meta.Key);
             nodes[meta.Key] = new DocCategoryNode
             {
                 Metadata = meta,
-                Title = ResolveTitle(meta.Key, meta.Key),
+                Title = title,
             };
         }
 

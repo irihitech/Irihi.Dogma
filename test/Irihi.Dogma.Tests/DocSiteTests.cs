@@ -130,10 +130,20 @@ public class DocSiteTests
             Cat("Child", parent: "Root", page: Page("Child.Title", "Child Display")));
 
         var child = site.Roots[0].Children[0];
-        // 分类标题 fallback = key 字面量
-        Assert.Equal("Child", GetValue(child.Title));
-        // 页面标题 fallback = FallbackTitle
+        // 分类标题 = 共存页面的标题（fallback）
+        Assert.Equal("Child Display", GetValue(child.Title));
         Assert.Equal("Child Display", GetValue(child.Page!.Title));
+    }
+
+    [Fact]
+    public void Category_Without_Page_Title_Falls_Back_To_Key()
+    {
+        var site = CreateSite(Cat("Root"), Cat("Pure", parent: "Root"));
+
+        var pure = site.Roots[0].Children[0];
+        // 无页面的容器节点：标题 fallback 到 Key 字面量
+        Assert.Equal("Pure", GetValue(pure.Title));
+        Assert.Null(pure.Page);
     }
 
     // ---- 搜索 ----

@@ -152,16 +152,20 @@ public class DocPageGeneratorTests
     }
 
     [Fact]
-    public void Reports_Missing_View_As_Dogdoc006()
+    public void Container_Category_With_Page_Without_View_Is_Allowed()
     {
+        // View 可选：仅标题/容器页面（如 Docs_Controls 的 [DocPage]）不要求 View，
+        // 也不进 ViewLocator（但 Register 正常生成 Page）
         var source = """
             namespace Demo;
             [Irihi.Dogma.Docs.DocCategory("C")]
             [Irihi.Dogma.Docs.DocPage("T")]
             public class C { }
             """;
-        var (_, diagnostics) = Run(source);
-        Assert.Contains(diagnostics, d => d.Id == "DOGDOC006");
+        var (generated, diagnostics) = Run(source);
+        Assert.Empty(diagnostics);
+        Assert.Contains("DocPageMetadata", generated);
+        Assert.DoesNotContain("C => new", generated);
     }
 
     [Fact]

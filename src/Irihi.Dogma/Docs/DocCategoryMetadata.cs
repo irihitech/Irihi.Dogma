@@ -5,7 +5,7 @@ namespace Irihi.Dogma.Docs;
 /// </summary>
 public sealed class DocCategoryMetadata
 {
-    /// <summary>分类节点标识（Lingua 键，标题来源）。</summary>
+    /// <summary>分类节点内部标识（Parent 链引用用，非标题来源；标题来自共存页面的 TitleKey）。</summary>
     public required string Key { get; init; }
 
     /// <summary>父分类键；null = 顶层。</summary>

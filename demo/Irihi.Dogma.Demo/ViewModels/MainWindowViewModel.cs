@@ -4,24 +4,22 @@ using Irihi.Dogma.Docs;
 
 namespace Irihi.Dogma.Demo.ViewModels;
 
-/// <summary>TreeView 适配节点：分类节点（含子项与页面）或页面节点。</summary>
+/// <summary>TreeView 适配节点：分类节点（含子项与共存页面）。</summary>
 public sealed class DocTreeItem
 {
-    private readonly DocCategoryNode? _category;
-    private readonly DocPageNode? _page;
+    private readonly DocCategoryNode _node;
 
-    public DocTreeItem(DocCategoryNode? category, DocPageNode? page)
+    public DocTreeItem(DocCategoryNode node)
     {
-        _category = category;
-        _page = page;
+        _node = node;
     }
 
-    /// <summary>分类标题（GetObservable）或页面标题。</summary>
-    public IObservable<string?> Title => _page?.Title ?? _category!.Title;
+    /// <summary>标题 = 分类标题（DocSite 已解析为共存页面的 Title）。</summary>
+    public IObservable<string?> Title => _node.Title;
 
-    public bool IsPage => _page is not null;
+    public bool IsPage => _node.Page is not null;
 
-    public DocPageNode? Page => _page;
+    public DocPageNode? Page => _node.Page;
 
     public IReadOnlyList<DocTreeItem> Children { get; set; } = [];
 }
@@ -92,8 +90,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private static DocTreeItem BuildTreeItem(DocCategoryNode node)
     {
-        // 共存页面就是分类节点的内容（点击分类即导航），不重复作为子项加入 Children
-        var item = new DocTreeItem(node, node.Page);
+        var item = new DocTreeItem(node);
         item.Children = node.Children.Select(BuildTreeItem).ToList();
         return item;
     }

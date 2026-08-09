@@ -14,8 +14,8 @@ public sealed class DocPageMetadata
     /// <summary>页面 ViewModel 类型。</summary>
     public required Type ViewModelType { get; init; }
 
-    /// <summary>关联 View 类型（供 GeneratedViewLocator 静态映射）。</summary>
-    public required Type ViewType { get; init; }
+    /// <summary>关联 View 类型（供 GeneratedViewLocator 静态映射）；null = 仅标题/容器页面（无内容 View）。</summary>
+    public Type? ViewType { get; init; }
 
     /// <summary>搜索关键字（跨文化稳定）。</summary>
     public IReadOnlyList<string> Keywords { get; init; } = [];
