@@ -6,6 +6,9 @@
   <data name="Search_Placeholder" xml:space="preserve">
     <value>搜索页面...</value>
   </data>
+  <data name="Docs_Root" xml:space="preserve">
+    <value>文档</value>
+  </data>
   <data name="Docs_Controls" xml:space="preserve">
     <value>控件</value>
   </data>

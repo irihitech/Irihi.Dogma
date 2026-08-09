@@ -6,6 +6,9 @@
   <data name="Search_Placeholder" xml:space="preserve">
     <value>Search pages...</value>
   </data>
+  <data name="Docs_Root" xml:space="preserve">
+    <value>Docs</value>
+  </data>
   <data name="Docs_Controls" xml:space="preserve">
     <value>Controls</value>
   </data>

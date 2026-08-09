@@ -1,33 +1,36 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:docs="using:Irihi.Dogma.Docs"
+        xmlns:lingua="https://irihi.tech/lingua"
         xmlns:local="using:Irihi.Dogma.Demo"
         xmlns:vm="using:Irihi.Dogma.Demo.ViewModels"
-        xmlns:lingua="https://irihi.tech/lingua"
         x:Class="Irihi.Dogma.Demo.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="{Translate {x:Static local:LanguageManager+Keys.App_Title}}"
         RequestedThemeVariant="{Binding RequestedTheme}"
         Width="1080" Height="720">
     <DockPanel Margin="0">
-        <!-- 左侧：搜索 + 页面列表 -->
-        <Border DockPanel.Dock="Left" Width="280" Padding="12" BorderBrush="#33000000" BorderThickness="0,0,1,0">
+        <!-- 左侧：搜索 + 菜单（TreeView 多层） -->
+        <Border DockPanel.Dock="Left" Width="300" Padding="12" BorderBrush="#33000000" BorderThickness="0,0,1,0">
             <DockPanel>
-                <TextBox DockPanel.Dock="Top"
-                         PlaceholderText="{Translate {x:Static local:LanguageManager+Keys.Search_Placeholder}}"
-                         Text="{Binding SearchText}"
-                         Margin="0,0,0,8"/>
-                <lingua:CulturePicker DockPanel.Dock="Top">
-                    <lingua:CulturePicker.Managers>
-                        <x:Static Member="local:LanguageManager.Instance" />
-                    </lingua:CulturePicker.Managers>
-                    <lingua:CulturePicker.Cultures>
-                        <x:Static Member="lingua:LinguaCulture.InvariantCulture" />
-                        <lingua:LinguaCulture Culture="zh-Hans" DisplayName="中文" />
-                    </lingua:CulturePicker.Cultures>
-                </lingua:CulturePicker>
+                <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
+                    <TextBox PlaceholderText="{Translate {x:Static local:LanguageManager+Keys.Search_Placeholder}}"
+                             Text="{Binding SearchText}"/>
+                    <lingua:CulturePicker>
+                        <lingua:CulturePicker.Managers>
+                            <x:Static Member="local:LanguageManager.Instance" />
+                        </lingua:CulturePicker.Managers>
+                        <lingua:CulturePicker.Cultures>
+                            <x:Static Member="lingua:LinguaCulture.InvariantCulture" />
+                            <lingua:LinguaCulture Culture="zh-Hans" DisplayName="中文" />
+                        </lingua:CulturePicker.Cultures>
+                    </lingua:CulturePicker>
+                </StackPanel>
+
+                <!-- 搜索模式：结果列表 -->
                 <ListBox ItemsSource="{Binding VisiblePages}"
                          SelectedItem="{Binding SelectedPage}"
+                         IsVisible="{Binding IsSearching}"
                          Background="Transparent">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="docs:DocPageNode">
@@ -40,6 +43,24 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+
+                <!-- 菜单模式：多层 TreeView -->
+                <TreeView ItemsSource="{Binding TreeItems}"
+                          SelectedItem="{Binding SelectedTreeItem}"
+                          IsVisible="{Binding !IsSearching}"
+                          Background="Transparent">
+                    <TreeView.ItemTemplate>
+                        <TreeDataTemplate ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="{Binding Title^}"
+                                           FontSize="13"/>
+                                <TextBlock Text="›"
+                                           FontSize="11" Opacity="0.6"
+                                           IsVisible="{Binding IsPage}"/>
+                            </StackPanel>
+                        </TreeDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
             </DockPanel>
         </Border>
         <!-- 右侧：内容区（GeneratedViewLocator 按 VM 呈现对应 View） -->
