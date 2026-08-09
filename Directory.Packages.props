@@ -12,6 +12,8 @@
     <PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersion)"/>
     <PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
+    <!--src-->
+    <PackageVersion Include="Irihi.Lingua" Version="1.0.0"/>
     <!--test-->
     <PackageVersion Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
     <PackageVersion Include="Avalonia.Headless.XUnit" Version="$(AvaloniaVersion)"/>
