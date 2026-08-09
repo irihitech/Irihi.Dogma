@@ -4,8 +4,10 @@ namespace Irihi.Dogma.Docs;
 
 /// <summary>
 /// 文档站注册表与核心逻辑：收集分类/页面元数据，构建分类树，提供搜索。
+/// 可继承：每个项目可创建自己的 DocSite 子类承载独立注册与库特定扩展
+/// （注册经 <see cref="IDocRegistry"/> 参数化，不绑定全局实例）。
 /// </summary>
-public sealed class DocSite : IDocRegistry
+public class DocSite : IDocRegistry
 {
     /// <summary>全局实例（宿主持有并注入 LinguaManager / ViewModelProvider）。</summary>
     public static DocSite Instance { get; } = new();

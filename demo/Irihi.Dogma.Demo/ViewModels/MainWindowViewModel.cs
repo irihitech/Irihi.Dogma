@@ -26,6 +26,13 @@ public sealed class DocTreeItem
 
 public partial class MainWindowViewModel : ObservableObject
 {
+    private readonly DocSite _site;
+
+    public MainWindowViewModel(DocSite site)
+    {
+        _site = site;
+    }
+
     /// <summary>是否使用亮色主题（演示 Avalonia 原生 RequestedThemeVariant 切换）。</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(RequestedTheme))]
@@ -53,13 +60,13 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>是否处于搜索模式（隐藏 TreeView，显示结果列表）。</summary>
     public bool IsSearching => !string.IsNullOrWhiteSpace(SearchText);
 
-    /// <summary>左侧 TreeView 的多层菜单（从 DocSite.Roots 递归构建）。</summary>
+    /// <summary>左侧 TreeView 的多层菜单（从本实例 Roots 递归构建）。</summary>
     public IReadOnlyList<DocTreeItem> TreeItems =>
-        DocSite.Instance.Roots.Select(BuildTreeItem).ToList();
+        _site.Roots.Select(BuildTreeItem).ToList();
 
     /// <summary>搜索结果列表。</summary>
     public IReadOnlyList<DocPageNode> VisiblePages =>
-        DocSite.Instance.Search(SearchText).ToList();
+        _site.Search(SearchText).ToList();
 
     partial void OnSearchTextChanged(string value)
     {
@@ -83,8 +90,8 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (page is not null)
         {
-            // 经 provider 获取 VM（默认每次新建；宿主可注入缓存/DI）
-            CurrentContent = DocSite.Instance.ViewModelProvider.GetViewModel(page);
+            // 经本实例的 provider 获取 VM（默认每次新建；宿主可注入缓存/DI）
+            CurrentContent = _site.ViewModelProvider.GetViewModel(page);
         }
     }
 
