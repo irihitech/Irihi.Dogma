@@ -189,10 +189,9 @@ public interface IDocRegistry
 public sealed class DocCategoryNode
 {
     public required DocCategoryMetadata Metadata { get; init; }
-    public IObservable<string?> Title { get; init; }          // 共存页面标题（无页面容器 fallback Key），UI `^` 绑定
     public DocCategoryNode? Parent { get; init; }
     public IReadOnlyList<DocCategoryNode> Children { get; init; } = [];  // 已按 Order 排序
-    public DocPageNode? Page { get; init; }                   // null = 无页面
+    public DocPageNode? Page { get; init; }                   // null = 无页面；标题统一从 Page.Title 消费
     public bool IsClickable => Metadata.IsClickable;          // 显式声明，非推断
 }
 

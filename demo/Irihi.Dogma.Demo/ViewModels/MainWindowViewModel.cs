@@ -14,8 +14,8 @@ public sealed class DocTreeItem
         _node = node;
     }
 
-    /// <summary>标题 = 分类标题（DocSite 已解析为共存页面的 Title）。</summary>
-    public IObservable<string?> Title => _node.Title;
+    /// <summary>标题 = 共存页面的 Title（无页面容器为 null，菜单可显示空/隐藏）。</summary>
+    public IObservable<string?>? Title => _node.Page?.Title;
 
     public bool IsPage => _node.Page is not null;
 

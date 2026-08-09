@@ -123,27 +123,24 @@ public class DocSiteTests
     // ---- 标题 fallback ----
 
     [Fact]
-    public void Title_Falls_Back_Without_LinguaManager()
+    public void Title_Comes_From_Page()
     {
         var site = CreateSite(
             Cat("Root"),
             Cat("Child", parent: "Root", page: Page("Child.Title", "Child Display")));
 
         var child = site.Roots[0].Children[0];
-        // 分类标题 = 共存页面的标题（fallback）
-        Assert.Equal("Child Display", GetValue(child.Title));
+        // 标题统一从 Page.Title 消费（分类节点不再持有 Title）
         Assert.Equal("Child Display", GetValue(child.Page!.Title));
     }
 
     [Fact]
-    public void Category_Without_Page_Title_Falls_Back_To_Key()
+    public void Category_Without_Page_Has_Null_Page_And_No_Title()
     {
         var site = CreateSite(Cat("Root"), Cat("Pure", parent: "Root"));
 
         var pure = site.Roots[0].Children[0];
-        // 无页面的容器节点：标题 fallback 到 Key 字面量
-        Assert.Equal("Pure", GetValue(pure.Title));
-        Assert.Null(pure.Page);
+        Assert.Null(pure.Page);   // 无页面容器：标题由消费方处理（应显式声明 [DocPage]）
     }
 
     // ---- 搜索 ----
