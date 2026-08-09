@@ -1,32 +1,40 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:docs="using:Irihi.Dogma.Docs"
+        xmlns:local="using:Irihi.Dogma.Demo"
         xmlns:vm="using:Irihi.Dogma.Demo.ViewModels"
-        xmlns:cb="using:Irihi.Dogma.Controls"
         x:Class="Irihi.Dogma.Demo.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="Irihi.Dogma Demo — CodeBlock"
+        Title="{Translate {x:Static local:LanguageManager+Keys.App_Title}}"
         RequestedThemeVariant="{Binding RequestedTheme}"
-        Width="1000" Height="760">
-    <DockPanel Margin="12">
-        <StackPanel DockPanel.Dock="Top"
-                    Orientation="Horizontal"
-                    Spacing="12"
-                    Margin="0,0,0,8">
-            <TextBlock Text="Irihi.Dogma · CodeBlock"
-                       FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
-            <ToggleButton Content="Light"
-                          IsChecked="{Binding UseLightTheme}"
-                          VerticalAlignment="Center"/>
-        </StackPanel>
+        Width="1080" Height="720">
+    <DockPanel Margin="0">
+        <!-- 左侧：搜索 + 页面列表 -->
+        <Border DockPanel.Dock="Left" Width="280" Padding="12" BorderBrush="#33000000" BorderThickness="0,0,1,0">
+            <DockPanel>
+                <TextBox DockPanel.Dock="Top"
+                         PlaceholderText="{Translate {x:Static local:LanguageManager+Keys.Search_Placeholder}}"
+                         Text="{Binding SearchText}"
+                         Margin="0,0,0,8"/>
+                <ListBox ItemsSource="{Binding VisiblePages}"
+                         SelectedItem="{Binding SelectedPage}"
+                         Background="Transparent">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="docs:DocPageNode">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="{Binding Title^}"
+                                           FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Metadata.TitleKey}"
+                                           FontSize="11" Opacity="0.55"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+        <!-- 右侧：内容区（GeneratedViewLocator 按 VM 呈现对应 View） -->
         <ScrollViewer>
-            <StackPanel Spacing="12">
-                <TextBlock Text="AXAML" FontWeight="Bold" FontSize="16"/>
-                <cb:CodeBlock Code="{Binding SampleAxaml}"
-                              Language="Axaml" MaxHeight="200"/>
-                <TextBlock Text="C#" FontWeight="Bold" FontSize="16"/>
-                <cb:CodeBlock Code="{Binding SampleCSharp}"
-                              Language="CSharp" MaxHeight="200"/>
-            </StackPanel>
+            <ContentControl Content="{Binding CurrentContent}" Margin="24" Padding="16"/>
         </ScrollViewer>
     </DockPanel>
 </Window>

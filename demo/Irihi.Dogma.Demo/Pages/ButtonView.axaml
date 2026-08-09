@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cb="using:Irihi.Dogma.Controls"
+             xmlns:local="using:Irihi.Dogma.Demo"
+             xmlns:pages="using:Irihi.Dogma.Demo.Pages"
+             x:Class="Irihi.Dogma.Demo.Pages.ButtonView"
+             x:DataType="pages:ButtonViewModel">
+    <StackPanel Spacing="16">
+        <TextBlock Text="{Translate {x:Static local:LanguageManager+Keys.Docs_Button_Title}}"
+                   FontSize="20" FontWeight="Bold"/>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="Click me"/>
+            <Button Content="Primary" Classes="primary"/>
+            <Button Content="Disabled" IsEnabled="False"/>
+        </StackPanel>
+        <TextBlock Text="Sample XAML:" FontWeight="Bold"/>
+        <cb:CodeBlock Code="{Binding SampleCode}" Language="Axaml"/>
+    </StackPanel>
+</UserControl>

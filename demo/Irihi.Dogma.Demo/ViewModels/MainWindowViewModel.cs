@@ -1,6 +1,6 @@
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Irihi.Dogma.Controls;
+using Irihi.Dogma.Docs;
 
 namespace Irihi.Dogma.Demo.ViewModels;
 
@@ -13,63 +13,32 @@ public partial class MainWindowViewModel : ObservableObject
 
     public ThemeVariant RequestedTheme => UseLightTheme ? ThemeVariant.Light : ThemeVariant.Dark;
 
-    /// <summary>示例 AXAML 源码（覆盖元素/属性/绑定/MarkupExtension/嵌套扩展/注释）。</summary>
-    public string SampleAxaml { get; } = """
-        <Window xmlns="https://github.com/avaloniaui"
-                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                xmlns:vm="using:Irihi.Dogma.Demo.ViewModels"
-                x:Class="Irihi.Dogma.Demo.Views.MainWindow"
-                x:DataType="vm:MainWindowViewModel"
-                Title="Irihi.Dogma Demo" Width="900" Height="700">
-            <!-- 主界面 -->
-            <Window.Styles>
-                <Style Selector="Button">
-                    <Setter Property="CornerRadius" Value="4"/>
-                </Style>
-            </Window.Styles>
-            <ScrollViewer>
-                <StackPanel Spacing="12" Margin="12">
-                    <TextBlock Text="{Binding Greeting}"
-                               FontSize="16" FontWeight="Bold"/>
-                    <Button Content="Click me"
-                            Command="{Binding GreetCommand}"
-                            IsVisible="{Binding !IsBusy}"/>
-                    <TextBlock Text="{Binding Path=SampleAxaml, Mode=OneWay}"/>
-                </StackPanel>
-            </ScrollViewer>
-        </Window>
-        """;
+    /// <summary>搜索文本（变化时过滤页面列表）。</summary>
+    [ObservableProperty]
+    private string _searchText = string.Empty;
 
-    /// <summary>示例 C# 源码（覆盖关键字/类型名/插值字符串/verbatim 字符串/region/注释）。</summary>
-    public string SampleCSharp { get; } = """
-        using System;
-        using System.Collections.Generic;
+    /// <summary>当前选中的页面。</summary>
+    [ObservableProperty]
+    private DocPageNode? _selectedPage;
 
-        namespace Irihi.Dogma.Demo;
+    /// <summary>当前内容区呈现的页面 VM。</summary>
+    [ObservableProperty]
+    private object? _currentContent;
 
-        /// <summary>示例服务：展示代码高亮。</summary>
-        public sealed class Greeter
+    /// <summary>左侧列表：空搜索显示全部页面，否则走 DocSite 搜索。</summary>
+    public IReadOnlyList<DocPageNode> VisiblePages =>
+        string.IsNullOrWhiteSpace(SearchText)
+            ? DocSite.Instance.AllPages.ToList()
+            : DocSite.Instance.Search(SearchText).ToList();
+
+    partial void OnSearchTextChanged(string value) => OnPropertyChanged(nameof(VisiblePages));
+
+    partial void OnSelectedPageChanged(DocPageNode? value)
+    {
+        if (value is not null)
         {
-            private const string Prefix = "Hello";
-
-            // 泛型集合 + 插值字符串
-            public List<string> Greet(string name, int times)
-            {
-                var list = new List<string>();
-                for (var i = 0; i < times; i++)
-                {
-                    var message = $"{Prefix}, {name}! #{i}";
-                    Console.WriteLine(message); // 输出问候
-                    list.Add(message);
-                }
-                return list;
-            }
-
-            public string RawPath => @"C:\tmp\demo\path";
-
-            #region 反射工具
-            public static Type TypeOf() => typeof(Greeter);
-            #endregion
+            // 经 provider 获取 VM（默认每次新建；宿主可注入缓存/DI）
+            CurrentContent = DocSite.Instance.ViewModelProvider.GetViewModel(value);
         }
-        """;
+    }
 }
