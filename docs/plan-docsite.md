@@ -119,7 +119,11 @@ public sealed partial class GeneratedViewLocator : IDataTemplate
 - `AddCategory`/`AddPage`（由生成的 `GeneratedDocPages.Register` 调用）
 - 树构建：按 `Parent` 链组装分类树（任意深度），**未显式声明的分类节点运行时隐式创建**
   （纯分组、不可点击），页面挂到所声明的分类；同级按 `Order` 排序，未声明 `Order` 的按注册顺序
-- `Navigate(page)`：生成 VM 实例（编译期工厂），暴露当前 VM
+- **VM 获取走 `IViewModelProvider`（创建能力与获取语义分离）**：
+  - `DocPageMetadata.ViewModelFactory`（SG 生成 `() => new XxxViewModel()`）只是“创建能力”
+  - `DocSite.ViewModelProvider` 决定“获取语义”：默认每次新建；宿主注入带缓存的实现
+    （单例/DI）即得“从 cache 获取”，SG 注册代码一行不改
+- `Navigate(page)`：经 provider 获取 VM 实例，暴露当前 VM
 - `Search(query)`：消费 Lingua observable 的当前文化文本（标题/分类）+ Keywords
 
 ### 宿主集成（View 呈现由各仓库自建 UI）
