@@ -9,6 +9,22 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia"/>
+    <PackageReference Include="Irihi.Lingua"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Irihi.Dogma.Docs.Generator\Irihi.Dogma.Docs.Generator.csproj"
+                      PrivateAssets="all"
+                      ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+
+  <!-- 打包：把 DocPageGenerator 编译的 dll 放进 NuGet 包的 analyzers 目录，
+       使安装 Irihi.Dogma 的消费者自动获得生成器（同 Irihi.Lingua 的做法）。 -->
+  <ItemGroup Label="Package">
+    <None Include="..\Irihi.Dogma.Docs.Generator\bin\$(Configuration)\netstandard2.0\Irihi.Dogma.Docs.Generator.dll"
+          PackagePath="analyzers\dotnet\cs"
+          Pack="true"
+          Visible="false" />
   </ItemGroup>
 
 </Project>

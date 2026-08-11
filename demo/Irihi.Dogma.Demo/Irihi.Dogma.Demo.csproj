@@ -18,10 +18,19 @@
     <PackageReference Include="Avalonia.Desktop"/>
     <PackageReference Include="Avalonia.Themes.Fluent"/>
     <PackageReference Include="CommunityToolkit.Mvvm"/>
+    <PackageReference Include="Irihi.Lingua"/>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Irihi.Dogma\Irihi.Dogma.csproj"/>
+    <ProjectReference Include="..\..\src\Irihi.Dogma.Docs.Generator\Irihi.Dogma.Docs.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Lingua 资源 -->
+    <AdditionalFiles Include="Resources\**\*.resx"/>
   </ItemGroup>
 
 </Project>

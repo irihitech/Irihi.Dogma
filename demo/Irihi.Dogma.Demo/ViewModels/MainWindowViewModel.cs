@@ -1,11 +1,38 @@
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Irihi.Dogma.Controls;
+using Irihi.Dogma.Docs;
 
 namespace Irihi.Dogma.Demo.ViewModels;
 
+/// <summary>TreeView 适配节点：分类节点（含子项与共存页面）。</summary>
+public sealed class DocTreeItem
+{
+    private readonly DocCategoryNode _node;
+
+    public DocTreeItem(DocCategoryNode node)
+    {
+        _node = node;
+    }
+
+    /// <summary>标题 = 共存页面的 Title（无页面容器为 null，菜单可显示空/隐藏）。</summary>
+    public IObservable<string?>? Title => _node.Page?.Title;
+
+    public bool IsPage => _node.Page is not null;
+
+    public DocPageNode? Page => _node.Page;
+
+    public IReadOnlyList<DocTreeItem> Children { get; set; } = [];
+}
+
 public partial class MainWindowViewModel : ObservableObject
 {
+    private readonly DocSite _site;
+
+    public MainWindowViewModel()
+    {
+        _site = DemoDocSite.Default;
+    }
+
     /// <summary>是否使用亮色主题（演示 Avalonia 原生 RequestedThemeVariant 切换）。</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(RequestedTheme))]
@@ -13,63 +40,40 @@ public partial class MainWindowViewModel : ObservableObject
 
     public ThemeVariant RequestedTheme => UseLightTheme ? ThemeVariant.Light : ThemeVariant.Dark;
 
-    /// <summary>示例 AXAML 源码（覆盖元素/属性/绑定/MarkupExtension/嵌套扩展/注释）。</summary>
-    public string SampleAxaml { get; } = """
-        <Window xmlns="https://github.com/avaloniaui"
-                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                xmlns:vm="using:Irihi.Dogma.Demo.ViewModels"
-                x:Class="Irihi.Dogma.Demo.Views.MainWindow"
-                x:DataType="vm:MainWindowViewModel"
-                Title="Irihi.Dogma Demo" Width="900" Height="700">
-            <!-- 主界面 -->
-            <Window.Styles>
-                <Style Selector="Button">
-                    <Setter Property="CornerRadius" Value="4"/>
-                </Style>
-            </Window.Styles>
-            <ScrollViewer>
-                <StackPanel Spacing="12" Margin="12">
-                    <TextBlock Text="{Binding Greeting}"
-                               FontSize="16" FontWeight="Bold"/>
-                    <Button Content="Click me"
-                            Command="{Binding GreetCommand}"
-                            IsVisible="{Binding !IsBusy}"/>
-                    <TextBlock Text="{Binding Path=SampleAxaml, Mode=OneWay}"/>
-                </StackPanel>
-            </ScrollViewer>
-        </Window>
-        """;
+    /// <summary>当前选中的树节点（TreeView 菜单用）。</summary>
+    [ObservableProperty]
+    private DocTreeItem? _selectedTreeItem;
 
-    /// <summary>示例 C# 源码（覆盖关键字/类型名/插值字符串/verbatim 字符串/region/注释）。</summary>
-    public string SampleCSharp { get; } = """
-        using System;
-        using System.Collections.Generic;
+    /// <summary>当前内容区呈现的页面 VM。</summary>
+    [ObservableProperty]
+    private object? _currentContent;
 
-        namespace Irihi.Dogma.Demo;
+    /// <summary>左侧 TreeView 的多层菜单（从本实例 Roots 递归构建）。</summary>
+    public IReadOnlyList<DocTreeItem> TreeItems =>
+        _site.Roots.Select(BuildTreeItem).ToList();
 
-        /// <summary>示例服务：展示代码高亮。</summary>
-        public sealed class Greeter
+    partial void OnSelectedTreeItemChanged(DocTreeItem? value)
+    {
+        // 分类节点本身不可点击/无页面时不导航；选中页面节点才显示内容
+        if (value?.Page is { } page)
         {
-            private const string Prefix = "Hello";
-
-            // 泛型集合 + 插值字符串
-            public List<string> Greet(string name, int times)
-            {
-                var list = new List<string>();
-                for (var i = 0; i < times; i++)
-                {
-                    var message = $"{Prefix}, {name}! #{i}";
-                    Console.WriteLine(message); // 输出问候
-                    list.Add(message);
-                }
-                return list;
-            }
-
-            public string RawPath => @"C:\tmp\demo\path";
-
-            #region 反射工具
-            public static Type TypeOf() => typeof(Greeter);
-            #endregion
+            Navigate(page);
         }
-        """;
+    }
+
+    private void Navigate(DocPageNode? page)
+    {
+        if (page is not null)
+        {
+            // 经本实例的 provider 获取 VM（默认每次新建；宿主可注入缓存/DI）
+            CurrentContent = _site.ViewModelProvider.GetViewModel(page);
+        }
+    }
+
+    private static DocTreeItem BuildTreeItem(DocCategoryNode node)
+    {
+        var item = new DocTreeItem(node);
+        item.Children = node.Children.Select(BuildTreeItem).ToList();
+        return item;
+    }
 }
