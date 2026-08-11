@@ -17,9 +17,8 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         // 文档站集成：项目自己的 DocSite 实例（非全局单例）
-        // 注册 SG 生成的页面/分类 + Lingua 文本源
+        // 注册 SG 生成的页面/分类
         GeneratedDocPages.Register(DemoDocSite.Default);
-        DemoDocSite.Default.LinguaManager = LanguageManager.Instance;
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

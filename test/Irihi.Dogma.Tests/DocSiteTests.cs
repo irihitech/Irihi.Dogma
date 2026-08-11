@@ -123,15 +123,16 @@ public class DocSiteTests
     // ---- 标题 fallback ----
 
     [Fact]
-    public void Title_Comes_From_Page()
+    public void Page_Node_Stores_Only_Metadata_And_Key()
     {
         var site = CreateSite(
             Cat("Root"),
             Cat("Child", parent: "Root", page: Page("Child.Title", "Child Display")));
 
-        var child = site.Roots[0].Children[0];
-        // 标题统一从 Page.Title 消费（分类节点不再持有 Title）
-        Assert.Equal("Child Display", GetValue(child.Page!.Title));
+        var childPage = site.Roots[0].Children[0].Page;
+        Assert.NotNull(childPage);
+        Assert.Equal("Child.Title", childPage!.Metadata.TitleKey);
+        Assert.Equal("Child Display", childPage.Metadata.FallbackTitle);
     }
 
     [Fact]
@@ -242,20 +243,6 @@ public class DocSiteTests
         Assert.Null(site.FindPage("Missing"));
         Assert.Null(site.FindPage("Pure"));   // 无页面容器
         Assert.Null(site.FindPage("Root"));   // 根容器
-    }
-
-    private static T GetValue<T>(IObservable<T> observable)
-    {
-        T? result = default;
-        observable.Subscribe(new SimpleObserver<T>(v => result = v));
-        return result!;
-    }
-
-    private sealed class SimpleObserver<T>(Action<T> onNext) : IObserver<T>
-    {
-        public void OnCompleted() { }
-        public void OnError(Exception error) { }
-        public void OnNext(T value) => onNext(value);
     }
 
     private sealed class SingletonViewModelProvider : IViewModelProvider

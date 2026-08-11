@@ -1,6 +1,7 @@
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Irihi.Dogma.Docs;
+using Irihi.Lingua;
 
 namespace Irihi.Dogma.Demo.ViewModels;
 
@@ -14,8 +15,11 @@ public sealed class DocTreeItem
         _node = node;
     }
 
-    /// <summary>标题 = 共存页面的 Title（无页面容器为 null，菜单可显示空/隐藏）。</summary>
-    public IObservable<string?>? Title => _node.Page?.Title;
+    /// <summary>标题由宿主解析（此处示例接入 Lingua；无页面容器为 null）。</summary>
+    public IObservable<string?>? Title => _node.Page is { } page
+        ? LanguageManager.Instance.GetObservable(page.Metadata.TitleKey) ??
+          LinguaObservableString.FromLiteral(page.Metadata.FallbackTitle ?? page.Metadata.TitleKey)
+        : null;
 
     public bool IsPage => _node.Page is not null;
 
