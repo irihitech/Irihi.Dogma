@@ -5,6 +5,16 @@
 
 A set of Avalonia UI controls designed for documentation and demo scenarios.
 
+> **⚠️ Support & Scope**
+>
+> This repository exists to serve **IRIHI's own product demos** — it is not a general-purpose, publicly supported library. Before using it, please understand that:
+>
+> - **No support** — external support requests, issues, and feature suggestions are not processed.
+> - **No compatibility guarantees** — APIs may change or break at any time, without notice or semantic-versioning discipline.
+> - **Demo-first** — code targets our internal demo scenarios; use cases outside those scenarios are out of scope.
+>
+> Use at your own risk.
+
 ## Features
 
 - **CodeBlock** — syntax-highlighted, selectable, copyable code display control with zero external dependencies

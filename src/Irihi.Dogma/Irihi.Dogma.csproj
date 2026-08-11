@@ -5,7 +5,18 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- NuGet package metadata（同 Irihi.Lingua 的做法） -->
+    <Description>Avalonia UI controls for documentation and demo scenarios (CodeBlock, DocSite).</Description>
+    <PackageTags>avalonia;controls;documentation;demo;code-block;source-generator;docsite</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>irihi.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\irihi.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia"/>
