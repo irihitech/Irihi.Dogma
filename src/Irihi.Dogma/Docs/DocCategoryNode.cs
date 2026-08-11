@@ -2,7 +2,7 @@ namespace Irihi.Dogma.Docs;
 
 /// <summary>
 /// 分类树节点（可携带一个共存页面）。
-/// 标题不在分类节点上——统一从 <see cref="Page"/> 的 <see cref="DocPageNode.Title"/> 消费。
+/// 标题文本消费由宿主决定（可直接消费键，或自行接入本地化系统）。
 /// </summary>
 public sealed class DocCategoryNode
 {

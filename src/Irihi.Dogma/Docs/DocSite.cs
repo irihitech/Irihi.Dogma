@@ -1,5 +1,3 @@
-using Irihi.Lingua;
-
 namespace Irihi.Dogma.Docs;
 
 /// <summary>
@@ -14,9 +12,6 @@ public abstract class DocSite : IDocRegistry
 
     /// <summary>已注册的分类元数据（只读视图，供子类检查/扩展）。</summary>
     protected IReadOnlyList<DocCategoryMetadata> Categories => _categories;
-
-    /// <summary>文本来源（Lingua）；null 时标题回退到 fallback/键字面量。</summary>
-    public ILinguaManager? LinguaManager { get; set; }
 
     /// <summary>VM 获取语义（默认每次新建；宿主可注入单例缓存/DI 实现）。</summary>
     public IViewModelProvider ViewModelProvider { get; set; } = new DefaultViewModelProvider();
@@ -54,7 +49,7 @@ public abstract class DocSite : IDocRegistry
     }
 
     /// <summary>
-    /// 按分类 Key 查找其共存页面节点（<see cref="DocPageNode"/> 含 Metadata/Title/Category，
+    /// 按分类 Key 查找其共存页面节点（<see cref="DocPageNode"/> 含 Metadata/Category，
     /// VM 可经 <see cref="ViewModelProvider"/> 获取）；Key 不存在或该分类节点无页面时返回 null。
     /// </summary>
     public DocPageNode? FindPage(string key)
@@ -143,7 +138,6 @@ public abstract class DocSite : IDocRegistry
                 node.Page = new DocPageNode
                 {
                     Metadata = pageMeta,
-                    Title = ResolveTitle(pageMeta.TitleKey, pageMeta.FallbackTitle ?? pageMeta.TitleKey),
                     Category = node,
                 };
             }
@@ -171,13 +165,6 @@ public abstract class DocSite : IDocRegistry
 
         // 6. 顶层 = 无父节点
         return nodes.Values.Where(n => n.Parent is null).ToList();
-    }
-
-    /// <summary>解析标题 observable（子类可 override 自定义标题来源/fallback）。</summary>
-    protected virtual IObservable<string?> ResolveTitle(string key, string fallback)
-    {
-        var observable = LinguaManager?.GetObservable(key);
-        return observable ?? LinguaObservableString.FromLiteral(fallback);
     }
 
     /// <summary>树遍历收集页面（子类可 override 定制收集规则）。</summary>

@@ -11,7 +11,7 @@ public sealed class DocPageAttribute(string titleKey) : Attribute
     /// <summary>Lingua 键（页面标题来源）。</summary>
     public string TitleKey { get; } = titleKey;
 
-    /// <summary>可选 fallback 字面量（键缺失/无 LinguaManager 时兜底）。</summary>
+    /// <summary>可选 fallback 字面量（宿主消费 TitleKey 时可按需兜底）。</summary>
     public string? Title { get; init; }
 
     /// <summary>该 VM 关联的 View 类型（编译期 typeof，供 GeneratedViewLocator 静态映射）。</summary>
