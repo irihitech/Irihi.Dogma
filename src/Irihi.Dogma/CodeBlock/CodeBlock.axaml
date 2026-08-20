@@ -32,7 +32,7 @@
                                     </Grid>
                                 </ScrollViewer>
                                 <Button x:Name="PART_CopyButton"
-                                        Content="Copy"
+                                        Content="{TemplateBinding CopyButtonText}"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Top"
                                         Margin="0,6,6,0"

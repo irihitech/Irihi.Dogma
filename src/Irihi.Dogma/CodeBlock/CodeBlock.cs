@@ -30,6 +30,10 @@ public class CodeBlock : TemplatedControl
     public static readonly StyledProperty<bool> ShowCopyButtonProperty =
         AvaloniaProperty.Register<CodeBlock, bool>(nameof(ShowCopyButton), true);
 
+    /// <summary>"复制全部"按钮的显示文本，默认为 "Copy"。</summary>
+    public static readonly StyledProperty<string> CopyButtonTextProperty =
+        AvaloniaProperty.Register<CodeBlock, string>(nameof(CopyButtonText), "Copy");
+
     /// <summary>
     /// 调色板：为 null 时按 <see cref="StyledElement.ActualThemeVariant"/> 自动选择内建
     /// <see cref="CodePalette.Dark"/> 或 <see cref="CodePalette.Light"/>；
@@ -42,7 +46,6 @@ public class CodeBlock : TemplatedControl
     private SelectableTextBlock? _codeText;
     private TextBlock? _lineNumbers;
     private Button? _copyButton;
-    private bool _copyBusy;
 
     public string Code
     {
@@ -72,6 +75,12 @@ public class CodeBlock : TemplatedControl
     {
         get => GetValue(ShowCopyButtonProperty);
         set => SetValue(ShowCopyButtonProperty, value);
+    }
+
+    public string CopyButtonText
+    {
+        get => GetValue(CopyButtonTextProperty);
+        set => SetValue(CopyButtonTextProperty, value);
     }
 
     public CodeBlock()
@@ -180,28 +189,12 @@ public class CodeBlock : TemplatedControl
 
     private async void OnCopyClick(object? sender, RoutedEventArgs e)
     {
-        if (_copyBusy || _copyButton is null)
-        {
-            return;
-        }
-
         var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
         if (clipboard is null)
         {
             return;
         }
 
-        _copyBusy = true;
-        try
-        {
-            await clipboard.SetTextAsync(Code ?? string.Empty);
-            _copyButton.Content = "Copied ✓";
-            await Task.Delay(1500);
-            _copyButton.Content = "Copy";
-        }
-        finally
-        {
-            _copyBusy = false;
-        }
+        await clipboard.SetTextAsync(Code ?? string.Empty);
     }
 }
