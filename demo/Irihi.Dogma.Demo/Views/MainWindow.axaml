@@ -23,6 +23,9 @@
                             <lingua:LinguaCulture Culture="zh-Hans" DisplayName="中文" />
                         </lingua:CulturePicker.Cultures>
                     </lingua:CulturePicker>
+                    <ToggleSwitch IsChecked="{Binding UseLightTheme}"
+                                  OnContent="Light"
+                                  OffContent="Dark"/>
                 </StackPanel>
 
                 <!-- 菜单：多层 TreeView -->

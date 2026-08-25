@@ -27,6 +27,7 @@
                                                              Grid.Column="1"
                                                              Margin="0,10,12,10"
                                                              FontFamily="Consolas, Cascadia Mono, Menlo, monospace"
+                                                             SelectionForegroundBrush="{x:Null}"
                                                              FontSize="13"
                                                              LineHeight="18"/>
                                     </Grid>
