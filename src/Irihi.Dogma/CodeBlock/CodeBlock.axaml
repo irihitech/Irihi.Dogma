@@ -5,40 +5,49 @@
         <ResourceDictionary>
             <ControlTheme x:Key="{x:Type cb:CodeBlock}"
                           TargetType="cb:CodeBlock">
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
                 <Setter Property="Template">
                     <ControlTemplate>
                         <Border x:Name="PART_Container"
-                                CornerRadius="6"
-                                BorderBrush="#33000000"
-                                BorderThickness="1"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
                                 ClipToBounds="True">
                             <Grid>
-                                <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                                              VerticalScrollBarVisibility="Auto">
-                                    <Grid ColumnDefinitions="Auto,*">
-                                        <TextBlock x:Name="PART_LineNumbers"
-                                                   Margin="12,10,8,10"
-                                                   TextAlignment="Right"
-                                                   VerticalAlignment="Top"
-                                                   FontFamily="Consolas, Cascadia Mono, Menlo, monospace"
-                                                   FontSize="13"
-                                                   LineHeight="18"/>
-                                        <SelectableTextBlock x:Name="PART_CodeText"
-                                                             Grid.Column="1"
-                                                             Margin="0,10,12,10"
-                                                             FontFamily="Consolas, Cascadia Mono, Menlo, monospace"
-                                                             SelectionForegroundBrush="{x:Null}"
-                                                             FontSize="13"
-                                                             LineHeight="18"/>
+                                <ScrollViewer
+                                    HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                    VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                                    <Grid
+                                        ColumnDefinitions="Auto,*">
+                                        <TextBlock
+                                            x:Name="PART_LineNumbers"
+                                            Margin="12,10,8,10"
+                                            TextAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontFamily="Consolas, Cascadia Mono, Menlo, monospace"
+                                            FontSize="13"
+                                            LineHeight="18" />
+                                        <SelectableTextBlock
+                                            x:Name="PART_CodeText"
+                                            Grid.Column="1"
+                                            Margin="0,10,12,10"
+                                            FontFamily="Consolas, Cascadia Mono, Menlo, monospace"
+                                            SelectionForegroundBrush="{x:Null}"
+                                            FontSize="13"
+                                            LineHeight="18" />
                                     </Grid>
                                 </ScrollViewer>
-                                <Button x:Name="PART_CopyButton"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Margin="0,6,6,0"
-                                        Padding="4">
-                                    <PathIcon Width="14" Height="14"
-                                              Data="M22 16a2 2 0 0 1-2 2V4H6c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2v12ZM2 8c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8Zm2 0h12v12H4V8Zm2 6a1 1 0 0 1 1-1h2v-2a1 1 0 1 1 2 0v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 1 1-2 0v-2H7a1 1 0 0 1-1-1Z"/>
+                                <Button
+                                    x:Name="PART_CopyButton"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,6,6,0"
+                                    Theme="{DynamicResource BorderlessButton}"
+                                    Padding="4">
+                                    <PathIcon Width="14"
+                                            Height="14"
+                                            Data="M22 16a2 2 0 0 1-2 2V4H6c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2v12ZM2 8c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8Zm2 0h12v12H4V8Zm2 6a1 1 0 0 1 1-1h2v-2a1 1 0 1 1 2 0v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 1 1-2 0v-2H7a1 1 0 0 1-1-1Z" />
                                 </Button>
                             </Grid>
                         </Border>
