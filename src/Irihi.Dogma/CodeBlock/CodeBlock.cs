@@ -42,7 +42,6 @@ public class CodeBlock : TemplatedControl
     private SelectableTextBlock? _codeText;
     private TextBlock? _lineNumbers;
     private Button? _copyButton;
-    private bool _copyBusy;
 
     public string Code
     {
@@ -180,28 +179,12 @@ public class CodeBlock : TemplatedControl
 
     private async void OnCopyClick(object? sender, RoutedEventArgs e)
     {
-        if (_copyBusy || _copyButton is null)
-        {
-            return;
-        }
-
         var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
         if (clipboard is null)
         {
             return;
         }
 
-        _copyBusy = true;
-        try
-        {
-            await clipboard.SetTextAsync(Code ?? string.Empty);
-            _copyButton.Content = "Copied ✓";
-            await Task.Delay(1500);
-            _copyButton.Content = "Copy";
-        }
-        finally
-        {
-            _copyBusy = false;
-        }
+        await clipboard.SetTextAsync(Code ?? string.Empty);
     }
 }
