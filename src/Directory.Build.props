@@ -7,9 +7,9 @@
 
   <PropertyGroup>
     <Authors>Irihi Technology</Authors>
-    <RepositoryUrl>https://github.com/rabbitism/Irihi.Dogma</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/rabbitism/Irihi.Dogma</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/irihitech/Irihi.Dogma</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/irihitech/Irihi.Dogma</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
   </PropertyGroup>
 </Project>
