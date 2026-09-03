@@ -91,13 +91,19 @@ public static class AxamlLexer
 
     private static int ParseEndTag(string code, int i, List<CodeToken> tokens)
     {
+        var n = code.Length;
         tokens.Add(new CodeToken(TokenKind.XmlPunctuation, "</"));
         i += 2;
         i = SkipWhitespace(code, i, tokens);
         i = ReadName(code, i, TokenKind.XmlElementName, tokens);
         i = SkipWhitespace(code, i, tokens);
-        tokens.Add(new CodeToken(TokenKind.XmlPunctuation, ">"));
-        return i + 1;
+        if (i < n && code[i] == '>')
+        {
+            tokens.Add(new CodeToken(TokenKind.XmlPunctuation, ">"));
+            i++;
+        }
+
+        return i;
     }
 
     private static int ParseStartTag(string code, int i, List<CodeToken> tokens)
@@ -116,13 +122,14 @@ public static class AxamlLexer
                 break;
             }
 
-            if (code[i] == '>')
+            var c = code[i];
+            if (c == '>')
             {
                 tokens.Add(new CodeToken(TokenKind.XmlPunctuation, ">"));
                 return i + 1;
             }
 
-            if (code[i] == '/')
+            if (c == '/')
             {
                 tokens.Add(new CodeToken(TokenKind.XmlPunctuation, "/"));
                 i++;
@@ -135,7 +142,25 @@ public static class AxamlLexer
                 continue;
             }
 
+            if (c == '=')
+            {
+                // 游离的 '='（非 name=value 位置）
+                tokens.Add(new CodeToken(TokenKind.XmlPunctuation, "="));
+                i++;
+                continue;
+            }
+
+            var before = i;
             i = ReadName(code, i, TokenKind.XmlAttributeName, tokens);
+            if (i == before)
+            {
+                // 非法 XML 名称字符（如把 C# 代码 `Show<A,B>(…)` 当 AXAML 解析时的 ','）。
+                // 必须消费该字符，否则循环永不前进（死循环会冻结 UI 线程）。
+                tokens.Add(new CodeToken(TokenKind.XmlPunctuation, c.ToString()));
+                i++;
+                continue;
+            }
+
             i = SkipWhitespace(code, i, tokens);
             if (i < n && code[i] == '=')
             {

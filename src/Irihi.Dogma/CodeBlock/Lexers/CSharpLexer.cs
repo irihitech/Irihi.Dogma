@@ -109,7 +109,7 @@ public static class CSharpLexer
         }
 
         var start = i;
-        while (i < code.Length && code[i] != '\n')
+        while (i < code.Length && code[i] is not ('\n' or '\r'))
         {
             i++;
         }
@@ -125,7 +125,7 @@ public static class CSharpLexer
 
         if (code[i + 1] == '/')
         {
-            // 行注释（/// 为文档注释）
+            // 行注释（/// 为文档注释）；\r 属于行终止符而非注释内容（CRLF 源码）
             var isDoc = i + 2 < n && code[i + 2] == '/';
             i += 2;
             if (isDoc)
@@ -133,7 +133,7 @@ public static class CSharpLexer
                 i++; // 第三个 /
             }
 
-            while (i < n && code[i] != '\n')
+            while (i < n && code[i] is not ('\n' or '\r'))
             {
                 i++;
             }
