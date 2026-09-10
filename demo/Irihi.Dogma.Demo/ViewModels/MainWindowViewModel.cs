@@ -12,8 +12,8 @@ public partial class MainWindowViewModel : ObservableObject
     public MainWindowViewModel()
     {
         _site = DemoDocSite.Default;
-        // 菜单标题经 Lingua 按资源键解析；缺失键时库内自动回退 FallbackTitle
-        Menu = new DocMenuViewModel(_site, key => LanguageManager.Instance.GetObservable(key));
+        // 菜单标题经 Lingua manager 按资源键解析；缺失键时库内自动回退 FallbackTitle
+        Menu = new DocMenuViewModel(_site, LanguageManager.Instance);
     }
 
     /// <summary>左侧导航菜单（由 DocSite 分类树生成，供 u:NavMenu 绑定）。</summary>

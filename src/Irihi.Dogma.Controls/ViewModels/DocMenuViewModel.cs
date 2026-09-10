@@ -12,11 +12,11 @@ namespace Irihi.Dogma.Controls.ViewModels;
 /// </summary>
 public class DocMenuViewModel
 {
-    private readonly Func<string, IObservable<string?>?>? _titleResolver;
+    private readonly ILinguaManager? _manager;
 
-    public DocMenuViewModel(DocSite site, Func<string, IObservable<string?>?>? titleResolver = null)
+    public DocMenuViewModel(DocSite site, ILinguaManager? manager = null)
     {
-        _titleResolver = titleResolver;
+        _manager = manager;
         MenuItems = BuildTreeItems(site.Roots);
     }
 
@@ -43,7 +43,7 @@ public class DocMenuViewModel
 
     private DocMenuItemViewModel BuildTreeItem(DocCategoryNode node)
     {
-        var item = new DocMenuItemViewModel(node, _titleResolver);
+        var item = new DocMenuItemViewModel(node, _manager);
         var children = BuildTreeItems(node.Children);
         item.Children = new ObservableCollection<DocMenuItemViewModel>(children);
         return item;
