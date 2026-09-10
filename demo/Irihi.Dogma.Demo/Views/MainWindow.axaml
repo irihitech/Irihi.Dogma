@@ -1,7 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:u="https://irihi.tech/ursa"
         xmlns:docs="using:Irihi.Dogma.Docs"
         xmlns:dogma="using:Irihi.Dogma.Controls"
+        xmlns:cvm="using:Irihi.Dogma.Controls.ViewModels"
         xmlns:lingua="https://irihi.tech/lingua"
         xmlns:local="using:Irihi.Dogma.Demo"
         xmlns:vm="using:Irihi.Dogma.Demo.ViewModels"
@@ -11,41 +13,50 @@
         RequestedThemeVariant="{Binding RequestedTheme}"
         Width="1080" Height="720">
     <DockPanel Margin="0">
-        <!-- 左侧：搜索 + 菜单（TreeView 多层） -->
-        <Border DockPanel.Dock="Left" Width="300" Padding="12" BorderBrush="{DynamicResource SemiColorBorder}" BorderThickness="0,0,1,0">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
-                    <lingua:CulturePicker>
-                        <lingua:CulturePicker.Managers>
-                            <x:Static Member="local:LanguageManager.Instance" />
-                        </lingua:CulturePicker.Managers>
-                        <lingua:CulturePicker.Cultures>
-                            <x:Static Member="lingua:LinguaCulture.InvariantCulture" />
-                            <lingua:LinguaCulture Culture="zh-Hans" DisplayName="中文" />
-                        </lingua:CulturePicker.Cultures>
-                    </lingua:CulturePicker>
-                    <ToggleSwitch IsChecked="{Binding UseLightTheme}"
-                                  OnContent="Light"
-                                  OffContent="Dark"/>
-                </StackPanel>
-
-                <!-- 菜单：多层 TreeView -->
-                <TreeView ItemsSource="{Binding TreeItems}"
-                          SelectedItem="{Binding SelectedTreeItem}"
-                          Background="Transparent">
-                    <TreeView.ItemTemplate>
-                        <TreeDataTemplate ItemsSource="{Binding Children}">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <TextBlock Text="{Binding Title^}"
-                                           FontSize="13"/>
-                                <TextBlock Text="›"
-                                           FontSize="11" Opacity="0.6"
-                                           IsVisible="{Binding IsPage}"/>
-                            </StackPanel>
-                        </TreeDataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
-            </DockPanel>
+        <!-- 左侧：NavMenu（DocMenuViewModel 由 DocSite 分类树生成） -->
+        <Border DockPanel.Dock="Left"
+                Padding="8,4"
+                VerticalAlignment="Stretch"
+                Theme="{DynamicResource CardBorder}">
+            <u:NavMenu ExpandWidth="300"
+                       SubMenuBinding="{Binding Children}"
+                       HeaderBinding="{Binding}"
+                       SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
+                       ItemsSource="{Binding Menu.MenuItems}">
+                <u:NavMenu.Styles>
+                    <Style x:DataType="cvm:DocMenuItemViewModel"
+                           Selector="u|NavMenuItem">
+                        <Setter Property="IsSeparator" Value="{Binding IsSeparator}"/>
+                        <Setter Property="IsVisible" Value="{Binding IsVisible, Mode=TwoWay}"/>
+                    </Style>
+                </u:NavMenu.Styles>
+                <u:NavMenu.HeaderTemplate>
+                    <DataTemplate x:DataType="cvm:DocMenuItemViewModel">
+                        <TextBlock Text="{Binding MenuHeader^}"
+                                   ToolTip.Tip="{Binding MenuHeader^}"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </DataTemplate>
+                </u:NavMenu.HeaderTemplate>
+                <u:NavMenu.Header>
+                    <StackPanel Spacing="8" Margin="8 16">
+                        <lingua:CulturePicker>
+                            <lingua:CulturePicker.Managers>
+                                <x:Static Member="local:LanguageManager.Instance" />
+                            </lingua:CulturePicker.Managers>
+                            <lingua:CulturePicker.Cultures>
+                                <x:Static Member="lingua:LinguaCulture.InvariantCulture" />
+                                <lingua:LinguaCulture Culture="zh-Hans" DisplayName="中文" />
+                            </lingua:CulturePicker.Cultures>
+                        </lingua:CulturePicker>
+                        <TextBox Text="{Binding SearchText}"
+                                 PlaceholderText="Search"
+                                 InnerLeftContent="{DynamicResource SemiIconSearch}"/>
+                        <ToggleSwitch IsChecked="{Binding UseLightTheme}"
+                                      OnContent="Light"
+                                      OffContent="Dark"/>
+                    </StackPanel>
+                </u:NavMenu.Header>
+            </u:NavMenu>
         </Border>
         <!-- 右侧：页面元信息 + 内容区（GeneratedViewLocator 按 VM 呈现对应 View；页面自带 AnchorScrollViewer） -->
         <DockPanel>

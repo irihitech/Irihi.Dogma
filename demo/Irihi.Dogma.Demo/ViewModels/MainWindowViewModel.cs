@@ -2,32 +2,8 @@ using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Irihi.Dogma.Controls.ViewModels;
 using Irihi.Dogma.Docs;
-using Irihi.Lingua;
 
 namespace Irihi.Dogma.Demo.ViewModels;
-
-/// <summary>TreeView 适配节点：分类节点（含子项与共存页面）。</summary>
-public sealed class DocTreeItem
-{
-    private readonly DocCategoryNode _node;
-
-    public DocTreeItem(DocCategoryNode node)
-    {
-        _node = node;
-    }
-
-    /// <summary>标题由宿主解析（此处示例接入 Lingua；无页面容器为 null）。</summary>
-    public IObservable<string?>? Title => _node.Page is { } page
-        ? LanguageManager.Instance.GetObservable(page.Metadata.TitleKey) ??
-          LinguaObservableString.FromLiteral(page.Metadata.FallbackTitle ?? page.Metadata.TitleKey)
-        : null;
-
-    public bool IsPage => _node.Page is not null;
-
-    public DocPageNode? Page => _node.Page;
-
-    public IReadOnlyList<DocTreeItem> Children { get; set; } = [];
-}
 
 public partial class MainWindowViewModel : ObservableObject
 {
@@ -36,7 +12,20 @@ public partial class MainWindowViewModel : ObservableObject
     public MainWindowViewModel()
     {
         _site = DemoDocSite.Default;
+        // 菜单标题经 Lingua 按资源键解析；缺失键时库内自动回退 FallbackTitle
+        Menu = new DocMenuViewModel(_site, key => LanguageManager.Instance.GetObservable(key));
     }
+
+    /// <summary>左侧导航菜单（由 DocSite 分类树生成，供 u:NavMenu 绑定）。</summary>
+    public DocMenuViewModel Menu { get; }
+
+    /// <summary>当前选中的菜单项。</summary>
+    [ObservableProperty]
+    private DocMenuItemViewModel? _selectedMenuItem;
+
+    /// <summary>菜单搜索文本（过滤 DocMenuViewModel）。</summary>
+    [ObservableProperty]
+    private string? _searchText;
 
     /// <summary>是否使用亮色主题（演示 Avalonia 原生 RequestedThemeVariant 切换）。</summary>
     [ObservableProperty]
@@ -44,10 +33,6 @@ public partial class MainWindowViewModel : ObservableObject
     private bool _useLightTheme;
 
     public ThemeVariant RequestedTheme => UseLightTheme ? ThemeVariant.Light : ThemeVariant.Dark;
-
-    /// <summary>当前选中的树节点（TreeView 菜单用）。</summary>
-    [ObservableProperty]
-    private DocTreeItem? _selectedTreeItem;
 
     /// <summary>当前内容区呈现的页面 VM。</summary>
     [ObservableProperty]
@@ -57,33 +42,24 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private PageMetadataViewModel? _pageMetadata;
 
-    /// <summary>左侧 TreeView 的多层菜单（从本实例 Roots 递归构建）。</summary>
-    public IReadOnlyList<DocTreeItem> TreeItems =>
-        _site.Roots.Select(BuildTreeItem).ToList();
-
-    partial void OnSelectedTreeItemChanged(DocTreeItem? value)
+    partial void OnSearchTextChanged(string? value)
     {
-        // 分类节点本身不可点击/无页面时不导航；选中页面节点才显示内容
-        if (value?.Page is { } page)
+        Menu.FilterMenuItems(value);
+    }
+
+    partial void OnSelectedMenuItemChanged(DocMenuItemViewModel? value)
+    {
+        // 非可点击分类 / 无页面节点不导航
+        if (value?.Node.Page is { } page)
         {
             Navigate(page);
         }
     }
 
-    private void Navigate(DocPageNode? page)
+    private void Navigate(DocPageNode page)
     {
-        if (page is not null)
-        {
-            // 经本实例的 provider 获取 VM（默认每次新建；宿主可注入缓存/DI）
-            CurrentContent = _site.ViewModelProvider.GetViewModel(page);
-            PageMetadata = CurrentContent is IPageMetadataProvider provider ? provider.PageMetadata : null;
-        }
-    }
-
-    private static DocTreeItem BuildTreeItem(DocCategoryNode node)
-    {
-        var item = new DocTreeItem(node);
-        item.Children = node.Children.Select(BuildTreeItem).ToList();
-        return item;
+        // 经本实例的 provider 获取 VM（默认每次新建；宿主可注入缓存/DI）
+        CurrentContent = _site.ViewModelProvider.GetViewModel(page);
+        PageMetadata = CurrentContent is IPageMetadataProvider provider ? provider.PageMetadata : null;
     }
 }
