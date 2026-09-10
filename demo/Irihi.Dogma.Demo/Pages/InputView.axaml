@@ -1,19 +1,22 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:cb="using:Irihi.Dogma.Controls"
-             xmlns:local="using:Irihi.Dogma.Demo"
+             xmlns:dogma="using:Irihi.Dogma.Controls"
              xmlns:pages="using:Irihi.Dogma.Demo.Pages"
              x:Class="Irihi.Dogma.Demo.Pages.InputView"
              x:DataType="pages:InputViewModel">
-    <StackPanel Spacing="16">
-        <TextBlock Text="{Translate {x:Static local:LanguageManager+Keys.Docs_Input_Title}}"
-                   FontSize="20" FontWeight="Bold"/>
-        <StackPanel Spacing="8" MaxWidth="300" HorizontalAlignment="Left">
-            <TextBox PlaceholderText="Enter your name"/>
-            <TextBox Text="Editable text" />
-            <TextBox PlaceholderText="Password" PasswordChar="●"/>
+    <dogma:AnchorScrollViewer AnchorItems="{Binding AnchorItems}">
+        <StackPanel Spacing="20">
+            <dogma:DemoSectionView SectionContext="{Binding BasicSection}">
+                <StackPanel Spacing="8" MaxWidth="300" HorizontalAlignment="Left">
+                    <TextBox PlaceholderText="Enter your name"/>
+                    <TextBox Text="Editable text"/>
+                </StackPanel>
+            </dogma:DemoSectionView>
+            <dogma:DemoSectionView SectionContext="{Binding PasswordSection}">
+                <StackPanel Spacing="8" MaxWidth="300" HorizontalAlignment="Left">
+                    <TextBox PlaceholderText="Password" PasswordChar="●"/>
+                </StackPanel>
+            </dogma:DemoSectionView>
         </StackPanel>
-        <TextBlock Text="Sample XAML:" FontWeight="Bold"/>
-        <cb:CodeBlock Code="{Binding SampleCode}" Language="Axaml"/>
-    </StackPanel>
+    </dogma:AnchorScrollViewer>
 </UserControl>

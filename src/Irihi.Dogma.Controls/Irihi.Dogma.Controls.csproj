@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- NuGet package metadata（同 Irihi.Dogma 的做法） -->
+    <Description>Avalonia UI controls for documentation and demo scenarios (DemoSectionView, PageMetadataView, AnchorScrollViewer).</Description>
+    <PackageTags>avalonia;controls;documentation;demo;demo-section;page-metadata;anchor-scrollviewer</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>irihi.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\irihi.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia"/>
+    <PackageReference Include="CommunityToolkit.Mvvm"/>
+    <PackageReference Include="Irihi.Lingua"/>
+    <PackageReference Include="Irihi.Avalonia.Shared"/>
+    <PackageReference Include="Irihi.Ursa"/>
+    <PackageReference Include="Irihi.Ursa.Themes.Semi"/>
+    <PackageReference Include="Semi.Avalonia"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Irihi.Dogma\Irihi.Dogma.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Lingua 资源 -->
+    <AdditionalFiles Include="Localizations\**\*.resx"/>
+  </ItemGroup>
+
+</Project>

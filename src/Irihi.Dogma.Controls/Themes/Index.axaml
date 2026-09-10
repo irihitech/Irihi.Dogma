@@ -1,0 +1,12 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:semi="https://irihi.tech/semi">
+    <!-- Dogma.Controls 的统一样式入口：一次引入即可获得完整样式链。
+         消费方在 App.axaml 中使用：
+             <StyleInclude Source="avares://Irihi.Dogma.Controls/Themes/Index.axaml"/> -->
+    <semi:SemiTheme />
+    <semi:UrsaSemiTheme />
+    <StyleInclude Source="avares://Irihi.Dogma/CodeBlock/CodeBlock.axaml" />
+    <StyleInclude Source="avares://Irihi.Dogma.Controls/Themes/AnchorScrollViewer.axaml" />
+    <StyleInclude Source="avares://Irihi.Dogma.Controls/Themes/DemoSectionView.axaml" />
+</Styles>

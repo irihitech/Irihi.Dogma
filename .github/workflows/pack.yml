@@ -11,12 +11,19 @@ on:
         description: 'Pack Irihi.Dogma'
         default: true
         type: boolean
+      Irihi_Dogma_Controls:
+        description: 'Pack Irihi.Dogma.Controls'
+        default: true
+        type: boolean
   workflow_call:
     inputs:
       Upload_to_NuGet:
         type: boolean
         default: false
       Irihi_Dogma:
+        type: boolean
+        default: true
+      Irihi_Dogma_Controls:
         type: boolean
         default: true
     secrets:
@@ -35,6 +42,10 @@ jobs:
       - name: Pack Irihi.Dogma
         if: ${{ inputs.Irihi_Dogma }}
         run: dotnet pack src/Irihi.Dogma -c Release -o nugets
+
+      - name: Pack Irihi.Dogma.Controls
+        if: ${{ inputs.Irihi_Dogma_Controls }}
+        run: dotnet pack src/Irihi.Dogma.Controls -c Release -o nugets
 
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1

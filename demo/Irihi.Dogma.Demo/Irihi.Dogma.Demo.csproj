@@ -7,6 +7,8 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <!-- NativeAOT 发布（dotnet publish -r win-x64）；需本机 MSVC 工具链 -->
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,15 +16,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia"/>
-    <PackageReference Include="Avalonia.Desktop"/>
-    <PackageReference Include="Avalonia.Themes.Fluent"/>
+    <!-- 仅 demo 升级到 12.1.1（修复 {ReflectionBinding ^} 表达式解析崩溃）；库仍用全局 12.0.3 -->
+    <PackageReference Include="Avalonia" VersionOverride="12.1.1"/>
+    <PackageReference Include="Avalonia.Desktop" VersionOverride="12.1.1"/>
     <PackageReference Include="CommunityToolkit.Mvvm"/>
     <PackageReference Include="Irihi.Lingua"/>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Irihi.Dogma\Irihi.Dogma.csproj"/>
+    <ProjectReference Include="..\..\src\Irihi.Dogma.Controls\Irihi.Dogma.Controls.csproj"/>
     <ProjectReference Include="..\..\src\Irihi.Dogma.Docs.Generator\Irihi.Dogma.Docs.Generator.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false"/>

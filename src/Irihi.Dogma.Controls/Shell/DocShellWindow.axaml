@@ -1,0 +1,76 @@
+<u:UrsaWindow xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:u="https://irihi.tech/ursa"
+        xmlns:dogma="using:Irihi.Dogma.Controls"
+        xmlns:cvm="using:Irihi.Dogma.Controls.ViewModels"
+        xmlns:lingua="https://irihi.tech/lingua"
+        x:Class="Irihi.Dogma.Controls.DocShellWindow"
+        x:DataType="cvm:DocShellViewModel"
+        x:Name="Root"
+        Title="{Binding Title^}"
+        Width="1080" Height="720">
+    <u:UrsaWindow.LeftContent>
+        <TextBlock FontWeight="Bold" IsHitTestVisible="False" Text="{Binding Title^, FallbackValue=Hello}" Margin="8 8 0 0" />
+    </u:UrsaWindow.LeftContent>
+    <u:UrsaWindow.RightContent>
+        <StackPanel Orientation="Horizontal" >
+            <lingua:CulturePicker Managers="{Binding Managers}"
+                                  MinWidth="100"
+                                  Cultures="{Binding Cultures}"/>
+            <u:ThemeToggleButton IsThreeState="True" />
+        </StackPanel>
+    </u:UrsaWindow.RightContent>
+    <DockPanel Margin="0 36 0 0">
+        <!-- 左侧：NavMenu（DocMenuViewModel 由 DocSite 分类树生成） -->
+        <Border DockPanel.Dock="Left"
+                Padding="8,4"
+                VerticalAlignment="Stretch"
+                Theme="{DynamicResource CardBorder}">
+            <u:NavMenu ExpandWidth="300"
+                       SubMenuBinding="{Binding Children}"
+                       HeaderBinding="{Binding}"
+                       SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
+                       ItemsSource="{Binding Menu.MenuItems}">
+                <u:NavMenu.Styles>
+                    <Style x:DataType="cvm:DocMenuItemViewModel"
+                           Selector="u|NavMenuItem">
+                        <Setter Property="IsSeparator" Value="{Binding IsSeparator}"/>
+                        <Setter Property="IsVisible" Value="{Binding IsVisible, Mode=TwoWay}"/>
+                    </Style>
+                </u:NavMenu.Styles>
+                <u:NavMenu.HeaderTemplate>
+                    <DataTemplate x:DataType="cvm:DocMenuItemViewModel">
+                        <TextBlock Text="{Binding MenuHeader^}"
+                                   ToolTip.Tip="{Binding MenuHeader^}"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </DataTemplate>
+                </u:NavMenu.HeaderTemplate>
+                <u:NavMenu.Header>
+                    <StackPanel Spacing="8" Margin="8 16">
+                        <ContentPresenter 
+                            Content="{Binding HeaderIcon, ElementName=Root}"
+                            HorizontalAlignment="Center"
+                            IsVisible="{Binding HeaderIcon, ElementName=Root, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                        <TextBox Text="{Binding SearchText}"
+                                 PlaceholderText="Search">
+                            <TextBox.InnerLeftContent>
+                                <PathIcon Theme="{DynamicResource InnerPathIcon}" Data="{DynamicResource SemiIconSearch}"></PathIcon>
+                            </TextBox.InnerLeftContent>
+                        </TextBox>
+                    </StackPanel>
+                </u:NavMenu.Header>
+            </u:NavMenu>
+        </Border>
+        <!-- 右侧：页面元信息 + 内容区（页面视图经 VM 注入的 GeneratedViewLocator 解析） -->
+        <DockPanel>
+            <Border DockPanel.Dock="Top"
+                    Margin="16 0 0 0"
+                    IsVisible="{Binding PageMetadata, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <dogma:PageMetadataView DataContext="{Binding PageMetadata}"/>
+            </Border>
+            <ContentControl Content="{Binding CurrentContent}"
+                            ContentTemplate="{Binding ViewLocator}"
+                            Margin="24"/>
+        </DockPanel>
+    </DockPanel>
+</u:UrsaWindow>

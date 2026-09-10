@@ -27,4 +27,34 @@
   <data name="Docs_Input_Desc" xml:space="preserve">
     <value>Text input controls like TextBox.</value>
   </data>
+  <data name="DemoSection_Tab_Xaml" xml:space="preserve">
+    <value>XAML</value>
+  </data>
+  <data name="DemoSection_Tab_ViewModel" xml:space="preserve">
+    <value>ViewModel</value>
+  </data>
+  <data name="Page_Button_Section_Basic_Header" xml:space="preserve">
+    <value>Basic Usage</value>
+  </data>
+  <data name="Page_Button_Section_Basic_Description" xml:space="preserve">
+    <value>Standard buttons in different styles.</value>
+  </data>
+  <data name="Page_Button_Section_Disabled_Header" xml:space="preserve">
+    <value>Disabled State</value>
+  </data>
+  <data name="Page_Button_Section_Disabled_Description" xml:space="preserve">
+    <value>Disabled buttons ignore user interactions.</value>
+  </data>
+  <data name="Page_Input_Section_Basic_Header" xml:space="preserve">
+    <value>Basic Usage</value>
+  </data>
+  <data name="Page_Input_Section_Basic_Description" xml:space="preserve">
+    <value>Single-line text inputs with placeholder and initial text.</value>
+  </data>
+  <data name="Page_Input_Section_Password_Header" xml:space="preserve">
+    <value>Password Input</value>
+  </data>
+  <data name="Page_Input_Section_Password_Description" xml:space="preserve">
+    <value>Masks the typed characters for password scenarios.</value>
+  </data>
 </root>
