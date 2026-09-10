@@ -14,6 +14,8 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+        LanguageManager.Instance.UpdateCulture(new  CultureInfo("zh-Hans"));
+        Controls.Localizations.LanguageManager.Instance.UpdateCulture(new  CultureInfo("zh-Hans"));
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -38,8 +40,8 @@ public partial class App : Application
                         new LinguaCulture { Culture = new CultureInfo("zh-Hans"), DisplayName = "中文" }
                     ],
                     Managers = [
-                        Controls.Localizations.LanguageManager.Instance,
                         LanguageManager.Instance,
+                        Controls.Localizations.LanguageManager.Instance,
                     ]
                 }
             };
