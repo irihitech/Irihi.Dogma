@@ -1,9 +1,11 @@
+using System.Globalization;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Irihi.Dogma.Demo.ViewModels;
-using Irihi.Dogma.Demo.Views;
+using Irihi.Dogma.Controls;
+using Irihi.Dogma.Controls.ViewModels;
 using Irihi.Dogma.Docs;
+using Irihi.Lingua;
 
 namespace Irihi.Dogma.Demo;
 
@@ -22,9 +24,24 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
+            // 外壳整体来自 Irihi.Dogma.Controls（DemoShellWindow 演示菜单图标配置）；
+            // demo 只提供站点、语言、文化与 VM→View 定位器
+            desktop.MainWindow = new DemoShellWindow
             {
-                DataContext = new MainWindowViewModel()
+                DataContext = new DocShellViewModel(DemoDocSite.Default, LanguageManager.Instance)
+                {
+                    Title = LanguageManager.Instance.App_Title,
+                    ViewLocator = new GeneratedViewLocator(),
+                    Cultures =
+                    [
+                        new LinguaCulture { Culture = new CultureInfo("en-US"), DisplayName = "English" },
+                        new LinguaCulture { Culture = new CultureInfo("zh-Hans"), DisplayName = "中文" }
+                    ],
+                    Managers = [
+                        Controls.Localizations.LanguageManager.Instance,
+                        LanguageManager.Instance,
+                    ]
+                }
             };
         }
 

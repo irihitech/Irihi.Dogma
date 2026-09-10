@@ -1,0 +1,11 @@
+<dogma:DocShellWindow xmlns="https://github.com/avaloniaui"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:dogma="using:Irihi.Dogma.Controls"
+                      xmlns:iri="https://irihi.tech/shared"
+                      FontFamily="Microsoft YaHei"
+                      x:Class="Irihi.Dogma.Demo.DemoShellWindow">
+    <!-- 侧栏头部图标（与窗口标题并排） -->
+    <dogma:DocShellWindow.HeaderIcon>
+        <iri:IrihiBand Label="Dogma" Height="32" Fill="{DynamicResource SemiColorText0}" />
+    </dogma:DocShellWindow.HeaderIcon>
+</dogma:DocShellWindow>

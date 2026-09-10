@@ -1,18 +1,26 @@
-<Window xmlns="https://github.com/avaloniaui"
+<u:UrsaWindow xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:u="https://irihi.tech/ursa"
-        xmlns:docs="using:Irihi.Dogma.Docs"
         xmlns:dogma="using:Irihi.Dogma.Controls"
         xmlns:cvm="using:Irihi.Dogma.Controls.ViewModels"
         xmlns:lingua="https://irihi.tech/lingua"
-        xmlns:local="using:Irihi.Dogma.Demo"
-        xmlns:vm="using:Irihi.Dogma.Demo.ViewModels"
-        x:Class="Irihi.Dogma.Demo.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Title="{Translate {x:Static local:LanguageManager+Keys.App_Title}}"
-        RequestedThemeVariant="{Binding RequestedTheme}"
+        x:Class="Irihi.Dogma.Controls.DocShellWindow"
+        x:DataType="cvm:DocShellViewModel"
+        x:Name="Root"
+        Title="{Binding Title^}"
         Width="1080" Height="720">
-    <DockPanel Margin="0">
+    <u:UrsaWindow.LeftContent>
+        <TextBlock FontWeight="Bold" IsHitTestVisible="False" Text="{Binding Title^, FallbackValue=Hello}" Margin="8 8 0 0" />
+    </u:UrsaWindow.LeftContent>
+    <u:UrsaWindow.RightContent>
+        <StackPanel Orientation="Horizontal" >
+            <lingua:CulturePicker Managers="{Binding Managers}"
+                                  MinWidth="100"
+                                  Cultures="{Binding Cultures}"/>
+            <u:ThemeToggleButton IsThreeState="True" />
+        </StackPanel>
+    </u:UrsaWindow.RightContent>
+    <DockPanel Margin="0 36 0 0">
         <!-- 左侧：NavMenu（DocMenuViewModel 由 DocSite 分类树生成） -->
         <Border DockPanel.Dock="Left"
                 Padding="8,4"
@@ -39,37 +47,30 @@
                 </u:NavMenu.HeaderTemplate>
                 <u:NavMenu.Header>
                     <StackPanel Spacing="8" Margin="8 16">
-                        <lingua:CulturePicker>
-                            <lingua:CulturePicker.Managers>
-                                <x:Static Member="local:LanguageManager.Instance" />
-                            </lingua:CulturePicker.Managers>
-                            <lingua:CulturePicker.Cultures>
-                                <x:Static Member="lingua:LinguaCulture.InvariantCulture" />
-                                <lingua:LinguaCulture Culture="zh-Hans" DisplayName="中文" />
-                            </lingua:CulturePicker.Cultures>
-                        </lingua:CulturePicker>
+                        <ContentPresenter 
+                            Content="{Binding HeaderIcon, ElementName=Root}"
+                            HorizontalAlignment="Center"
+                            IsVisible="{Binding HeaderIcon, ElementName=Root, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                         <TextBox Text="{Binding SearchText}"
-                                 PlaceholderText="Search"
-                                 InnerLeftContent="{DynamicResource SemiIconSearch}"/>
-                        <ToggleSwitch IsChecked="{Binding UseLightTheme}"
-                                      OnContent="Light"
-                                      OffContent="Dark"/>
+                                 PlaceholderText="Search">
+                            <TextBox.InnerLeftContent>
+                                <PathIcon Theme="{DynamicResource InnerPathIcon}" Data="{DynamicResource SemiIconSearch}"></PathIcon>
+                            </TextBox.InnerLeftContent>
+                        </TextBox>
                     </StackPanel>
                 </u:NavMenu.Header>
             </u:NavMenu>
         </Border>
-        <!-- 右侧：页面元信息 + 内容区（GeneratedViewLocator 按 VM 呈现对应 View；页面自带 AnchorScrollViewer） -->
+        <!-- 右侧：页面元信息 + 内容区（页面视图经 VM 注入的 GeneratedViewLocator 解析） -->
         <DockPanel>
             <Border DockPanel.Dock="Top"
-                    Padding="24 16 24 0"
+                    Margin="16 0 0 0"
                     IsVisible="{Binding PageMetadata, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <dogma:PageMetadataView DataContext="{Binding PageMetadata}"/>
             </Border>
-            <ContentControl Content="{Binding CurrentContent}" Margin="24">
-                <ContentControl.ContentTemplate>
-                    <docs:GeneratedViewLocator/>
-                </ContentControl.ContentTemplate>
-            </ContentControl>
+            <ContentControl Content="{Binding CurrentContent}"
+                            ContentTemplate="{Binding ViewLocator}"
+                            Margin="24"/>
         </DockPanel>
     </DockPanel>
-</Window>
+</u:UrsaWindow>
