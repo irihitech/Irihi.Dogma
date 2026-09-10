@@ -3,8 +3,8 @@
              x:Class="Irihi.Dogma.Demo.App"
              RequestedThemeVariant="Default">
     <Application.Styles>
-        <FluentTheme />
         <StyleInclude Source="avares://Irihi.Lingua.Core/Themes/Generic.axaml" />
-        <StyleInclude Source="avares://Irihi.Dogma/CodeBlock/CodeBlock.axaml"/>
+        <!-- 一次引入 Semi + Ursa(Semi) + CodeBlock + Dogma.Controls 全部主题 -->
+        <StyleInclude Source="avares://Irihi.Dogma.Controls/Themes/Index.axaml"/>
     </Application.Styles>
 </Application>

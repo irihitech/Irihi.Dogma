@@ -1,5 +1,6 @@
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Irihi.Dogma.Controls.ViewModels;
 using Irihi.Dogma.Docs;
 using Irihi.Lingua;
 
@@ -52,6 +53,10 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private object? _currentContent;
 
+    /// <summary>当前页面的元信息（页面 VM 实现 IPageMetadataProvider 时提供，否则为 null）。</summary>
+    [ObservableProperty]
+    private PageMetadataViewModel? _pageMetadata;
+
     /// <summary>左侧 TreeView 的多层菜单（从本实例 Roots 递归构建）。</summary>
     public IReadOnlyList<DocTreeItem> TreeItems =>
         _site.Roots.Select(BuildTreeItem).ToList();
@@ -71,6 +76,7 @@ public partial class MainWindowViewModel : ObservableObject
         {
             // 经本实例的 provider 获取 VM（默认每次新建；宿主可注入缓存/DI）
             CurrentContent = _site.ViewModelProvider.GetViewModel(page);
+            PageMetadata = CurrentContent is IPageMetadataProvider provider ? provider.PageMetadata : null;
         }
     }
 

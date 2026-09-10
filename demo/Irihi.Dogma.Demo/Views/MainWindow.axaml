@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:docs="using:Irihi.Dogma.Docs"
+        xmlns:dogma="using:Irihi.Dogma.Controls"
         xmlns:lingua="https://irihi.tech/lingua"
         xmlns:local="using:Irihi.Dogma.Demo"
         xmlns:vm="using:Irihi.Dogma.Demo.ViewModels"
@@ -11,7 +12,7 @@
         Width="1080" Height="720">
     <DockPanel Margin="0">
         <!-- 左侧：搜索 + 菜单（TreeView 多层） -->
-        <Border DockPanel.Dock="Left" Width="300" Padding="12" BorderBrush="#33000000" BorderThickness="0,0,1,0">
+        <Border DockPanel.Dock="Left" Width="300" Padding="12" BorderBrush="{DynamicResource SemiColorBorder}" BorderThickness="0,0,1,0">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
                     <lingua:CulturePicker>
@@ -46,13 +47,18 @@
                 </TreeView>
             </DockPanel>
         </Border>
-        <!-- 右侧：内容区（GeneratedViewLocator 按 VM 呈现对应 View） -->
-        <ScrollViewer>
-            <ContentControl Content="{Binding CurrentContent}" Margin="24" Padding="16">
+        <!-- 右侧：页面元信息 + 内容区（GeneratedViewLocator 按 VM 呈现对应 View；页面自带 AnchorScrollViewer） -->
+        <DockPanel>
+            <Border DockPanel.Dock="Top"
+                    Padding="24 16 24 0"
+                    IsVisible="{Binding PageMetadata, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <dogma:PageMetadataView DataContext="{Binding PageMetadata}"/>
+            </Border>
+            <ContentControl Content="{Binding CurrentContent}" Margin="24">
                 <ContentControl.ContentTemplate>
                     <docs:GeneratedViewLocator/>
                 </ContentControl.ContentTemplate>
             </ContentControl>
-        </ScrollViewer>
+        </DockPanel>
     </DockPanel>
 </Window>
