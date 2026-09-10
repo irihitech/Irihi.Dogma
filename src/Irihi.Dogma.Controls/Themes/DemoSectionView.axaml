@@ -1,0 +1,101 @@
+<Style xmlns="https://github.com/avaloniaui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+       xmlns:u="https://irihi.tech/ursa"
+       xmlns:controls="clr-namespace:Irihi.Dogma.Controls"
+       x:CompileBindings="True"
+       xmlns:converters="clr-namespace:Irihi.Dogma.Controls.Converters"
+       xmlns:dogma="clr-namespace:Irihi.Dogma.Controls;assembly=Irihi.Dogma"
+       xmlns:viewModels="clr-namespace:Irihi.Dogma.Controls.ViewModels">
+    <Style.Resources>
+        <ControlTheme x:Key="{x:Type controls:DemoSectionView}" TargetType="{x:Type controls:DemoSectionView}">
+            <ControlTheme.Resources>
+                <converters:CodeLanguageToPathConverter x:Key="CodeLanguageToPathConverter" />
+            </ControlTheme.Resources>
+            <Setter Property="Template">
+                <ControlTemplate TargetType="controls:DemoSectionView">
+                    <StackPanel Spacing="4">
+                        <DockPanel LastChildFill="False">
+                            <TextBlock
+                                Classes="H5"
+                                Theme="{DynamicResource TitleTextBlock}"
+                                u:Anchor.Id="{Binding SectionContext?.AnchorId, RelativeSource={RelativeSource TemplatedParent}}"
+                                IsVisible="{Binding SectionContext?.Header^,
+                                    RelativeSource={RelativeSource TemplatedParent},
+                                    Converter={x:Static StringConverters.IsNotNullOrEmpty},
+                                    FallbackValue={x:False}}"
+                                Text="{Binding SectionContext?.Header^,
+                                    RelativeSource={RelativeSource TemplatedParent},
+                                    FallbackValue={x:Static x:String.Empty}}" />
+                            <Label Classes="Ghost LightBlue"
+                                   DockPanel.Dock="Right"
+                                   Margin="8 0 0 0"
+                                   Theme="{DynamicResource TagLabel}"
+                                   IsVisible="{Binding SectionTagDisplayText^,
+                                    RelativeSource={RelativeSource TemplatedParent},
+                                    Converter={x:Static StringConverters.IsNotNullOrEmpty},
+                                    FallbackValue={x:False}}"
+                                   Content="{Binding SectionTagDisplayText^,
+                                        RelativeSource={RelativeSource TemplatedParent},
+                                        FallbackValue={x:Static x:String.Empty}}">
+
+                            </Label>
+                        </DockPanel>
+                        <Panel DataContext="{TemplateBinding SectionContext}">
+                            <ItemsControl
+                                ItemsSource="{Binding $self.((viewModels:DemoSectionViewModel)DataContext).Descriptions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <u:MarkdownLine
+                                            Markdown="{CompiledBinding .^, FallbackValue={x:Static x:String.Empty}}"
+                                            TextWrapping="Wrap" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Panel>
+                        <Border
+                            Padding="16"
+                            BorderBrush="{DynamicResource SemiColorBorder}"
+                            BorderThickness="{DynamicResource SemiBorderThicknessControl}"
+                            CornerRadius="{DynamicResource SemiBorderRadiusMedium}">
+                            <StackPanel
+                                Spacing="12">
+                                <ContentPresenter
+                                    Content="{TemplateBinding Content}" />
+
+                                <TabControl
+                                    ItemsSource="{Binding SectionContext?.CodeSnippets, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <TabControl.ContentTemplate>
+                                        <DataTemplate
+                                            DataType="viewModels:DemoSectionCodeSnippetViewModel">
+                                            <dogma:CodeBlock
+                                                MinHeight="72"
+                                                Margin="0 8 0 0"
+                                                Language="{Binding CodeSnippetLanguage}"
+                                                Code="{Binding CodeSnippet}" />
+                                        </DataTemplate>
+                                    </TabControl.ContentTemplate>
+                                    <TabControl.ItemTemplate>
+                                        <DataTemplate
+                                            DataType="viewModels:DemoSectionCodeSnippetViewModel">
+                                            <StackPanel
+                                                Orientation="Horizontal"
+                                                Spacing="4">
+                                                <PathIcon
+                                                    Foreground="{DynamicResource SemiColorPrimary}"
+                                                    Width="12"
+                                                    Height="12"
+                                                    Data="{Binding CodeSnippetLanguage, Converter={StaticResource CodeLanguageToPathConverter}}" />
+                                                <TextBlock
+                                                    Text="{Binding TabName^}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </TabControl.ItemTemplate>
+                                </TabControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter>
+        </ControlTheme>
+    </Style.Resources>
+</Style>
