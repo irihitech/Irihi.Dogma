@@ -1,0 +1,70 @@
+<Style xmlns="https://github.com/avaloniaui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+       xmlns:dogma="clr-namespace:Irihi.Dogma.Controls;assembly=Irihi.Dogma">
+    <Style.Resources>
+        <!-- 重新设计的 CodeBlock 主题（Semi 资源驱动；随 Index.axaml 引入，
+             消费方无需再单独引入主库的 CodeBlock.axaml） -->
+        <ControlTheme x:Key="{x:Type dogma:CodeBlock}" TargetType="dogma:CodeBlock">
+            <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
+            <Setter Property="BorderThickness" Value="{DynamicResource SemiBorderThicknessControl}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource SemiBorderRadiusMedium}" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="Template">
+                <ControlTemplate TargetType="dogma:CodeBlock">
+                    <Border x:Name="PART_Container"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            ClipToBounds="True">
+                        <Grid>
+                            <ScrollViewer
+                                HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <TextBlock
+                                        x:Name="PART_LineNumbers"
+                                        Margin="12,12,16,12"
+                                        TextAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        FontFamily="Consolas, Cascadia Mono, Menlo, monospace"
+                                        FontSize="13"
+                                        LineHeight="18" />
+                                    <SelectableTextBlock
+                                        x:Name="PART_CodeText"
+                                        Grid.Column="1"
+                                        Margin="0,12,12,12"
+                                        FontFamily="Consolas, Cascadia Mono, Menlo, monospace"
+                                        SelectionForegroundBrush="{x:Null}"
+                                        FontSize="13"
+                                        LineHeight="18" />
+                                </Grid>
+                            </ScrollViewer>
+                            <Button
+                                x:Name="PART_CopyButton"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Margin="0,6,6,0"
+                                Content="{DynamicResource SemiIconCopy}"
+                                Theme="{DynamicResource InnerIconButton}">
+                                
+                            </Button>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <!-- 复制按钮悬停浮现 -->
+            <Style Selector="^ /template/ Button#PART_CopyButton">
+                <Setter Property="Opacity" Value="0" />
+                <Setter Property="Transitions">
+                    <Transitions>
+                        <DoubleTransition Property="Opacity" Duration="0:0:0.15" />
+                    </Transitions>
+                </Setter>
+            </Style>
+            <Style Selector="^:pointerover /template/ Button#PART_CopyButton">
+                <Setter Property="Opacity" Value="1" />
+            </Style>
+        </ControlTheme>
+    </Style.Resources>
+</Style>

@@ -6,7 +6,7 @@
              <StyleInclude Source="avares://Irihi.Dogma.Controls/Themes/Index.axaml"/> -->
     <semi:SemiTheme />
     <semi:UrsaSemiTheme />
-    <StyleInclude Source="avares://Irihi.Dogma/CodeBlock/CodeBlock.axaml" />
+    <StyleInclude Source="avares://Irihi.Dogma.Controls/Themes/CodeBlock.axaml" />
     <StyleInclude Source="avares://Irihi.Dogma.Controls/Themes/AnchorScrollViewer.axaml" />
     <StyleInclude Source="avares://Irihi.Dogma.Controls/Themes/DemoSectionView.axaml" />
 </Styles>
