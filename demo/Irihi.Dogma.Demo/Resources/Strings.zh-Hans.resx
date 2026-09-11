@@ -3,6 +3,18 @@
   <data name="App_Title" xml:space="preserve">
     <value>Irihi.Dogma 文档</value>
   </data>
+  <data name="Docs_Introduction_Title" xml:space="preserve">
+    <value>简介</value>
+  </data>
+  <data name="Docs_Introduction_Body" xml:space="preserve">
+    <value>欢迎使用 Irihi.Dogma 文档演示。从左侧导航菜单选择页面，浏览控件、演示段落与代码片段。</value>
+  </data>
+  <data name="Docs_Introduction_NoteTitle" xml:space="preserve">
+    <value>无页面元信息</value>
+  </data>
+  <data name="Docs_Introduction_NoteBody" xml:space="preserve">
+    <value>本页面的 ViewModel 未实现 IPageMetadataProvider，因此外壳会整体隐藏元信息卡片，而不是渲染空标签。</value>
+  </data>
   <data name="Docs_Root" xml:space="preserve">
     <value>文档</value>
   </data>

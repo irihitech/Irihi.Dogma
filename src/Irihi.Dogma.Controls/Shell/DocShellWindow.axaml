@@ -16,7 +16,14 @@
         <StackPanel Orientation="Horizontal" >
             <lingua:CulturePicker Managers="{Binding Managers}"
                                   MinWidth="100"
-                                  Cultures="{Binding Cultures}"/>
+                                  Cultures="{Binding Cultures}">
+                <lingua:CulturePicker.Styles>
+                    <Style Selector="ComboBox">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                    </Style>
+                </lingua:CulturePicker.Styles>
+            </lingua:CulturePicker>
             <u:ThemeToggleButton IsThreeState="True" />
         </StackPanel>
     </u:UrsaWindow.RightContent>
@@ -65,7 +72,7 @@
         </Border>
         <!-- 右侧：页面元信息（顶部）+ 内容区（页面视图经 VM 注入的 GeneratedViewLocator 解析） -->
         <dogma:PageMetadataView DockPanel.Dock="Top"
-                                IsVisible="{ReflectionBinding PageMetadata, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                IsVisible="{Binding ., Converter={x:Static ObjectConverters.IsNotNull}}"
                                 DataContext="{Binding PageMetadata}"/>
         <ContentControl Content="{Binding CurrentContent}"
                         ContentTemplate="{Binding ViewLocator}"/>
