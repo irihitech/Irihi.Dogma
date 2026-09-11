@@ -3,6 +3,7 @@ using System.Reflection;
 using Irihi.Dogma.Docs.Generator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Xunit;
 
 namespace Irihi.Dogma.Tests;
@@ -32,7 +33,9 @@ public class DocPageGeneratorTests
         }
         """;
 
-    private static (string Generated, ImmutableArray<Diagnostic> Diagnostics) Run(string source)
+    private static (string Generated, ImmutableArray<Diagnostic> Diagnostics) Run(
+        string source,
+        string projectNamespace = "GeneratorTest")
     {
         var compilation = CSharpCompilation.Create(
             "GeneratorTest",
@@ -40,7 +43,12 @@ public class DocPageGeneratorTests
             TrustedReferences(),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-        var driver = CSharpGeneratorDriver.Create(new DocPageGenerator()) as GeneratorDriver;
+        var driver = CSharpGeneratorDriver.Create(
+            new[] { new DocPageGenerator().AsSourceGenerator() },
+            additionalTexts: null,
+            parseOptions: null,
+            optionsProvider: new TestAnalyzerConfigOptionsProvider(projectNamespace),
+            driverOptions: default) as GeneratorDriver;
         driver = driver!.RunGeneratorsAndUpdateCompilation(compilation, out _, out _);
         var result = driver.GetRunResult().Results[0];
         if (result.Exception is { } generatorException)
@@ -51,6 +59,32 @@ public class DocPageGeneratorTests
         var generated = result.GeneratedSources
             .FirstOrDefault(s => s.HintName == "GeneratedDocPages.g.cs").SourceText.ToString();
         return (generated, result.Diagnostics);
+    }
+
+    private sealed class TestAnalyzerConfigOptionsProvider(string rootNamespace) : AnalyzerConfigOptionsProvider
+    {
+        private readonly AnalyzerConfigOptions _options = new TestAnalyzerConfigOptions(rootNamespace);
+
+        public override AnalyzerConfigOptions GlobalOptions => _options;
+
+        public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => _options;
+
+        public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => _options;
+    }
+
+    private sealed class TestAnalyzerConfigOptions(string rootNamespace) : AnalyzerConfigOptions
+    {
+        public override bool TryGetValue(string key, out string value)
+        {
+            if (key == "build_property.RootNamespace")
+            {
+                value = rootNamespace;
+                return true;
+            }
+
+            value = null!;
+            return false;
+        }
     }
 
     private static ImmutableArray<MetadataReference> TrustedReferences()
@@ -74,6 +108,18 @@ public class DocPageGeneratorTests
             Keywords = new[] { "click" })]
         public class ControlsViewModel { }
         """;
+
+    [Fact]
+    public void Generates_Types_In_Project_Namespace()
+    {
+        var (generated, diagnostics) = Run(SampleSource, "Demo.Project");
+        Assert.Empty(diagnostics);
+
+        Assert.Contains("namespace Demo.Project;", generated);
+        Assert.Contains("public static partial class GeneratedDocPages", generated);
+        Assert.Contains("public sealed partial class GeneratedViewLocator", generated);
+        Assert.DoesNotContain("namespace Irihi.Dogma.Docs;", generated);
+    }
 
     [Fact]
     public void Generates_Register_With_Category_And_Page()
