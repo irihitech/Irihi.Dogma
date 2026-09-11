@@ -67,4 +67,13 @@
   <data name="DemoSection_Tag_Others" xml:space="preserve">
     <value>Others</value>
   </data>
+  <data name="Tag_MvvmSupport" xml:space="preserve">
+    <value>MVVM Support</value>
+  </data>
+  <data name="Tag_InlineXamlSupport" xml:space="preserve">
+    <value>Inline XAML Support</value>
+  </data>
+  <data name="Tag_AvaloniaExclusive" xml:space="preserve">
+    <value>Require Avalonia Exclusive ViewModel</value>
+  </data>
 </root>

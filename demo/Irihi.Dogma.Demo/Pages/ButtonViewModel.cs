@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Irihi.Dogma.Controls;
 using Irihi.Dogma.Controls.ViewModels;
 using Irihi.Dogma.Docs;
+using Irihi.Lingua;
 
 namespace Irihi.Dogma.Demo.Pages;
 
@@ -21,9 +22,12 @@ public sealed partial class ButtonViewModel : IPageMetadataProvider
             new BreadcrumbItemData(LanguageManager.Instance.Docs_Controls),
             new BreadcrumbItemData(LanguageManager.Instance.Docs_Button_Title)
         ],
-        Tags = ["Button", "Input"],
-        MvvmSupport = true,
-        InlineXamlSupport = true,
+        Tags =
+        [
+            PageMetadataTags.MvvmSupport(),
+            PageMetadataTags.InlineXaml(),
+            new PageMetadataTagViewModel { Text = LinguaObservableString.FromLiteral("Button"), Classes = "Ghost" },
+        ],
     };
 
     public DemoSectionViewModel BasicSection { get; }

@@ -203,7 +203,7 @@
                     Text="{Binding Description^}"
                     TextWrapping="Wrap" />
 
-                <!--  Tags  -->
+                <!--  Tags：动态 chip，空集合不渲染  -->
                 <ItemsControl ItemsSource="{Binding Tags}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -211,33 +211,18 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Label Content="{Binding .}"
-                                   Theme="{DynamicResource TagLabel}" />
+                        <DataTemplate x:DataType="viewModels:PageMetadataTagViewModel">
+                            <Label iri:ClassHelper.Classes="{Binding Classes}"
+                                   Theme="{DynamicResource TagLabel}">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <PathIcon Data="{Binding Icon}"
+                                              IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                    <TextBlock Text="{Binding Text^}"/>
+                                </StackPanel>
+                            </Label>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-
-                <!--  Special Flags  -->
-                <StackPanel
-                    Orientation="Horizontal"
-                    Spacing="8">
-                    <Label
-                        Classes="Blue"
-                        Content="MVVM Support"
-                        IsVisible="{Binding MvvmSupport}"
-                        Theme="{DynamicResource TagLabel}" />
-                    <Label
-                        Classes="Orange"
-                        Content="Inline XAML Support"
-                        IsVisible="{Binding InlineXamlSupport}"
-                        Theme="{DynamicResource TagLabel}" />
-                    <Label
-                        Classes="Indigo"
-                        Content="Require Avalonia Exclusive ViewModel"
-                        IsVisible="{Binding AvaloniaExclusive}"
-                        Theme="{DynamicResource TagLabel}" />
-                </StackPanel>
             </StackPanel>
         </Expander.Content>
     </Expander>
