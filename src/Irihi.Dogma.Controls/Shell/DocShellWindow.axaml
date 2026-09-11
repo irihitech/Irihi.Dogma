@@ -20,11 +20,13 @@
             <u:ThemeToggleButton IsThreeState="True" />
         </StackPanel>
     </u:UrsaWindow.RightContent>
-    <DockPanel Margin="0 36 0 0">
+    <!-- 布局对齐 Ursa demo MainView：外层统一 spacing/边距，区块间不再用零散 margin -->
+    <DockPanel HorizontalSpacing="16" VerticalSpacing="16" Margin="4 36 4 4">
         <!-- 左侧：NavMenu（DocMenuViewModel 由 DocSite 分类树生成） -->
         <Border DockPanel.Dock="Left"
                 Padding="8,4"
                 VerticalAlignment="Stretch"
+                Margin="0"
                 Theme="{DynamicResource CardBorder}">
             <u:NavMenu ExpandWidth="300"
                        SubMenuBinding="{Binding Children}"
@@ -47,7 +49,7 @@
                 </u:NavMenu.HeaderTemplate>
                 <u:NavMenu.Header>
                     <StackPanel Spacing="8" Margin="8 16">
-                        <ContentPresenter 
+                        <ContentPresenter
                             Content="{Binding HeaderIcon, ElementName=Root}"
                             HorizontalAlignment="Center"
                             IsVisible="{Binding HeaderIcon, ElementName=Root, Converter={x:Static ObjectConverters.IsNotNull}}"/>
@@ -61,16 +63,11 @@
                 </u:NavMenu.Header>
             </u:NavMenu>
         </Border>
-        <!-- 右侧：页面元信息 + 内容区（页面视图经 VM 注入的 GeneratedViewLocator 解析） -->
-        <DockPanel>
-            <Border DockPanel.Dock="Top"
-                    Margin="16 0 0 0"
-                    IsVisible="{Binding PageMetadata, Converter={x:Static ObjectConverters.IsNotNull}}">
-                <dogma:PageMetadataView DataContext="{Binding PageMetadata}"/>
-            </Border>
-            <ContentControl Content="{Binding CurrentContent}"
-                            ContentTemplate="{Binding ViewLocator}"
-                            Margin="24"/>
-        </DockPanel>
+        <!-- 右侧：页面元信息（顶部）+ 内容区（页面视图经 VM 注入的 GeneratedViewLocator 解析） -->
+        <dogma:PageMetadataView DockPanel.Dock="Top"
+                                IsVisible="{ReflectionBinding PageMetadata, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                DataContext="{Binding PageMetadata}"/>
+        <ContentControl Content="{Binding CurrentContent}"
+                        ContentTemplate="{Binding ViewLocator}"/>
     </DockPanel>
 </u:UrsaWindow>

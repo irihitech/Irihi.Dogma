@@ -22,6 +22,25 @@ public class DocMenuViewModel
 
     public ObservableCollection<DocMenuItemViewModel> MenuItems { get; }
 
+    /// <summary>按分类 Key 深度优先查找菜单项；找不到返回 null。</summary>
+    public DocMenuItemViewModel? GetMenuItem(string key)
+    {
+        return FindItem(MenuItems, key);
+    }
+
+    private static DocMenuItemViewModel? FindItem(IEnumerable<DocMenuItemViewModel> items, string key)
+    {
+        foreach (var item in items)
+        {
+            if (string.Equals(item.Key, key, StringComparison.Ordinal))
+                return item;
+            var found = FindItem(item.Children, key);
+            if (found is not null)
+                return found;
+        }
+        return null;
+    }
+
     /// <summary>按搜索文本过滤菜单（标题或子项命中则可见）；空文本恢复全部可见。</summary>
     public void FilterMenuItems(string? searchText)
     {
