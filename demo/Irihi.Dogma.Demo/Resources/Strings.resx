@@ -3,6 +3,18 @@
   <data name="App_Title" xml:space="preserve">
     <value>Irihi.Dogma Docs</value>
   </data>
+  <data name="Docs_Introduction_Title" xml:space="preserve">
+    <value>Introduction</value>
+  </data>
+  <data name="Docs_Introduction_Body" xml:space="preserve">
+    <value>Welcome to the Irihi.Dogma documentation demo. Pick a page from the navigation menu on the left to explore controls, demo sections and code snippets.</value>
+  </data>
+  <data name="Docs_Introduction_NoteTitle" xml:space="preserve">
+    <value>A page without metadata</value>
+  </data>
+  <data name="Docs_Introduction_NoteBody" xml:space="preserve">
+    <value>This page's view model does not implement IPageMetadataProvider, so the shell hides the whole metadata card instead of rendering empty tags.</value>
+  </data>
   <data name="Docs_Root" xml:space="preserve">
     <value>Docs</value>
   </data>

@@ -38,7 +38,7 @@
                             Name="PART_Anchor"
                             Grid.Row="0"
                             Grid.Column="1"
-                            Width="{TemplateBinding AnchorWidth}"
+                            MaxWidth="{TemplateBinding AnchorWidth}"
                             Margin="16"
                             VerticalAlignment="Stretch"
                             TargetContainer="{Binding $parent[ScrollViewer]}"

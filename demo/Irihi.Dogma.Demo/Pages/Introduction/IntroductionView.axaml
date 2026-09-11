@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:Irihi.Dogma.Demo"
+             x:Class="Irihi.Dogma.Demo.Pages.IntroductionView">
+    <ScrollViewer>
+        <StackPanel Spacing="12" MaxWidth="800" Margin="0 8 16 16">
+            <TextBlock Classes="H2"
+                       Theme="{DynamicResource TitleTextBlock}"
+                       Text="{Translate {x:Static local:LanguageManager+Keys.Docs_Introduction_Title}}"/>
+            <TextBlock Classes="Secondary"
+                       TextWrapping="Wrap"
+                       Text="{Translate {x:Static local:LanguageManager+Keys.Docs_Introduction_Body}}"/>
+            <Border Padding="16"
+                    Background="{DynamicResource SemiColorFillQuaternary}"
+                    BorderBrush="{DynamicResource SemiColorBorder}"
+                    BorderThickness="{DynamicResource SemiBorderThicknessControl}"
+                    CornerRadius="{DynamicResource SemiBorderRadiusMedium}">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="H5"
+                               Theme="{DynamicResource TitleTextBlock}"
+                               Text="{Translate {x:Static local:LanguageManager+Keys.Docs_Introduction_NoteTitle}}"/>
+                    <TextBlock TextWrapping="Wrap"
+                               Text="{Translate {x:Static local:LanguageManager+Keys.Docs_Introduction_NoteBody}}"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
