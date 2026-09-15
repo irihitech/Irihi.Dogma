@@ -10,6 +10,6 @@
     <RepositoryUrl>https://github.com/irihitech/Irihi.Dogma</RepositoryUrl>
     <PackageProjectUrl>https://github.com/irihitech/Irihi.Dogma</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
   </PropertyGroup>
 </Project>
