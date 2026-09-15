@@ -8,6 +8,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <!-- NativeAOT 发布（dotnet publish -r win-x64）；需本机 MSVC 工具链 -->
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <PublishAot>true</PublishAot>
   </PropertyGroup>
 

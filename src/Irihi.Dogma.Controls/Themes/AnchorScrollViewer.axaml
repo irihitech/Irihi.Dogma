@@ -5,22 +5,32 @@
     xmlns:controls="clr-namespace:Irihi.Dogma.Controls"
     xmlns:viewModels="clr-namespace:Irihi.Dogma.Controls.ViewModels">
     <Style.Resources>
-        <ControlTheme x:Key="{x:Type controls:AnchorScrollViewer}" TargetType="controls:AnchorScrollViewer">
-            <Setter Property="Background" Value="Transparent" />
+        <ControlTheme
+            x:Key="{x:Type controls:AnchorScrollViewer}"
+            TargetType="controls:AnchorScrollViewer">
+            <Setter Property="Background"
+                    Value="Transparent" />
             <Setter Property="MaxContentWidth" Value="800" />
             <Setter Property="AnchorWidth" Value="240" />
             <Setter Property="AnchorItemTemplate">
-                <TreeDataTemplate DataType="viewModels:AnchorScrollViewerItemViewModel" ItemsSource="{Binding Children}">
-                    <TextBlock Text="{Binding Header^}" TextWrapping="Wrap" />
+                <TreeDataTemplate
+                    DataType="viewModels:AnchorScrollViewerItemViewModel"
+                    ItemsSource="{Binding Children}">
+                    <TextBlock Text="{Binding Header^}"
+                               TextWrapping="Wrap" />
                 </TreeDataTemplate>
             </Setter>
             <Setter Property="Template">
-                <ControlTemplate TargetType="controls:AnchorScrollViewer">
-                    <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="*,Auto">
+                <ControlTemplate
+                    TargetType="controls:AnchorScrollViewer">
+                    <Grid ColumnDefinitions="*,Auto,Auto"
+                          RowDefinitions="*,Auto">
                         <ScrollContentPresenter
                             Name="PART_ContentPresenter"
                             Grid.RowSpan="2"
+                            Grid.Row="0"
                             Grid.Column="0"
+                            Margin="8"
                             Background="{TemplateBinding Background}"
                             HorizontalSnapPointsAlignment="{TemplateBinding HorizontalSnapPointsAlignment}"
                             HorizontalSnapPointsType="{TemplateBinding HorizontalSnapPointsType}"
@@ -60,7 +70,10 @@
             </Setter>
         </ControlTheme>
     </Style.Resources>
-    <Style Selector="controls|AnchorScrollViewer u|AnchorItem" x:DataType="viewModels:AnchorScrollViewerItemViewModel">
-        <Setter Property="AnchorId" Value="{Binding AnchorId}" />
+    <Style
+        Selector="controls|AnchorScrollViewer u|AnchorItem"
+        x:DataType="viewModels:AnchorScrollViewerItemViewModel">
+        <Setter Property="AnchorId"
+                Value="{Binding AnchorId}" />
     </Style>
 </Style>
