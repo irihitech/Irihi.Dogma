@@ -10,4 +10,7 @@ public enum CodeLanguage
 
     /// <summary>C#</summary>
     CSharp,
+
+    /// <summary>Bash</summary>
+    Bash,
 }

@@ -17,6 +17,7 @@ public static class CodeLexer
     {
         CodeLanguage.Axaml => AxamlLexer.Tokenize(code),
         CodeLanguage.CSharp => CSharpTokenClassifier.Classify(CSharpLexer.Tokenize(code)),
+        CodeLanguage.Bash => BashLexer.Tokenize(code),
         _ => [new CodeToken(TokenKind.Text, code)],
     };
 }
