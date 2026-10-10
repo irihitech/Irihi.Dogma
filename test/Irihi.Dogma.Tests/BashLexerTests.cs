@@ -58,4 +58,16 @@ public class BashLexerTests
         Assert.Contains(new CodeToken(TokenKind.String, "'path\\'"), tokens);
         Assert.Contains(new CodeToken(TokenKind.Comment, "# comment"), tokens);
     }
+
+    [Theory]
+    [InlineData("\"$(printf \"%s\" \"it's fine\")\"")]
+    [InlineData("\"$(echo \"$(pwd)\")\"")]
+    public void Command_Substitution_Quotes_Do_Not_End_The_Outer_String(string value)
+    {
+        var code = $"echo {value}\n# comment";
+        var tokens = BashLexer.Tokenize(code);
+        Assert.Equal(code, string.Concat(tokens.Select(t => t.Text)));
+        Assert.Contains(new CodeToken(TokenKind.String, value), tokens);
+        Assert.Contains(new CodeToken(TokenKind.Comment, "# comment"), tokens);
+    }
 }

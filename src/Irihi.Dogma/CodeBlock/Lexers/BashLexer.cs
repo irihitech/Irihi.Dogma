@@ -36,15 +36,7 @@ public static class BashLexer
             }
             else if (c is '\'' or '"' or '`')
             {
-                while (i < code.Length)
-                {
-                    var next = code[i++];
-                    if (next == c)
-                        break;
-                    if (next == '\\' && c != '\'' && i < code.Length
-                        && (c == '`' || code[i] is '$' or '`' or '"' or '\\' or '\n'))
-                        i++;
-                }
+                i = ReadQuoted(code, i, c);
                 kind = TokenKind.String;
                 wordStart = false;
             }
@@ -100,4 +92,38 @@ public static class BashLexer
     }
 
     private static bool IsOperator(char c) => c is ';' or '|' or '&' or '(' or ')' or '<' or '>' or '=';
+
+    private static int ReadQuoted(string code, int i, char quote)
+    {
+        var contexts = new Stack<char>();
+        contexts.Push(quote);
+        while (i < code.Length && contexts.Count > 0)
+        {
+            var context = contexts.Peek();
+            var c = code[i++];
+            if (c == '\\' && context != '\'' && i < code.Length
+                && (context is '(' or '`' || code[i] is '$' or '`' or '"' or '\\' or '\n'))
+            {
+                i++;
+            }
+            else if (context == '\'' || c == context && context != '(')
+            {
+                if (c == context)
+                    contexts.Pop();
+            }
+            else if (c == '$' && i < code.Length && code[i] == '(')
+            {
+                i++;
+                contexts.Push('(');
+            }
+            else if (context == '(')
+            {
+                if (c == ')')
+                    contexts.Pop();
+                else if (c is '(' or '\'' or '"' or '`')
+                    contexts.Push(c);
+            }
+        }
+        return i;
+    }
 }
