@@ -9,3 +9,7 @@ namespace Irihi.Dogma.Demo.Pages;
 [DocCategory("Docs_Controls", Order = 1, IsClickable = false)]
 [DocPage("Docs_Controls")]
 public sealed class DocsControlsDefinition;
+
+[DocCategory("Docs_DocumentationControls", Order = 2, IsClickable = false)]
+[DocPage("Docs_DocumentationControls")]
+public sealed class DocsDocumentationControlsDefinition;

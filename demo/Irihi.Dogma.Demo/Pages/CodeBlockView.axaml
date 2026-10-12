@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dogma="using:Irihi.Dogma.Controls"
+             xmlns:pages="using:Irihi.Dogma.Demo.Pages"
+             xmlns:local="using:Irihi.Dogma.Demo"
+             x:Class="Irihi.Dogma.Demo.Pages.CodeBlockView"
+             x:DataType="pages:CodeBlockViewModel">
+    <ScrollViewer>
+        <StackPanel Spacing="12" Margin="0 8 16 16">
+            <TextBlock Classes="H2"
+                       Theme="{DynamicResource TitleTextBlock}"
+                       Text="{Translate {x:Static local:LanguageManager+Keys.Docs_CodeBlock_Title}}" />
+            <TextBlock Classes="Secondary" TextWrapping="Wrap"
+                       Text="{Translate {x:Static local:LanguageManager+Keys.Docs_CodeBlock_Description}}" />
+            <TextBlock Classes="H5" Theme="{DynamicResource TitleTextBlock}" Text="AXAML" />
+            <dogma:CodeBlock Language="Axaml" Code="{Binding AxamlCode}" />
+            <TextBlock Classes="H5" Theme="{DynamicResource TitleTextBlock}" Text="C#" />
+            <dogma:CodeBlock Language="CSharp" Code="{Binding CSharpCode}" />
+            <TextBlock Classes="H5" Theme="{DynamicResource TitleTextBlock}" Text="Bash" />
+            <dogma:CodeBlock Language="Bash" Code="{Binding BashCode}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

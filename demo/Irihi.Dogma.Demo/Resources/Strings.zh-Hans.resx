@@ -21,6 +21,15 @@
   <data name="Docs_Controls" xml:space="preserve">
     <value>控件</value>
   </data>
+  <data name="Docs_DocumentationControls" xml:space="preserve">
+    <value>文档控件</value>
+  </data>
+  <data name="Docs_CodeBlock_Title" xml:space="preserve">
+    <value>代码块</value>
+  </data>
+  <data name="Docs_CodeBlock_Description" xml:space="preserve">
+    <value>展示 AXAML、C# 和 Bash 的语法高亮。支持选择和复制代码、行号以及自动适配明暗主题。</value>
+  </data>
   <data name="Docs_Buttons" xml:space="preserve">
     <value>按钮</value>
   </data>

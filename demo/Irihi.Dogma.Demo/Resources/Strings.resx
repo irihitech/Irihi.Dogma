@@ -21,6 +21,15 @@
   <data name="Docs_Controls" xml:space="preserve">
     <value>Controls</value>
   </data>
+  <data name="Docs_DocumentationControls" xml:space="preserve">
+    <value>Documentation Controls</value>
+  </data>
+  <data name="Docs_CodeBlock_Title" xml:space="preserve">
+    <value>CodeBlock</value>
+  </data>
+  <data name="Docs_CodeBlock_Description" xml:space="preserve">
+    <value>Syntax highlighting for AXAML, C#, and Bash. Select or copy the code, with line numbers and automatic light/dark theme support.</value>
+  </data>
   <data name="Docs_Buttons" xml:space="preserve">
     <value>Buttons</value>
   </data>
