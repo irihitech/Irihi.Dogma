@@ -1,12 +1,31 @@
+using Irihi.Dogma.Controls.ViewModels;
 using Irihi.Dogma.Docs;
+using Irihi.Lingua;
 
 namespace Irihi.Dogma.Demo.Pages;
 
 [DocCategory("Docs_CodeBlock", Parent = "Docs_DocumentationControls", Order = 0)]
 [DocPage("Docs_CodeBlock_Title", View = typeof(CodeBlockView),
     Keywords = new[] { "codeblock", "syntax", "axaml", "csharp", "bash" })]
-public sealed partial class CodeBlockViewModel
+public sealed partial class CodeBlockViewModel : IPageMetadataProvider
 {
+    public PageMetadataViewModel PageMetadata { get; set; } = new()
+    {
+        Title = LanguageManager.Instance.Docs_CodeBlock_Title,
+        Description = LanguageManager.Instance.Docs_CodeBlock_Description,
+        Breadcrumbs =
+        [
+            new BreadcrumbItemData(LanguageManager.Instance.Docs_DocumentationControls),
+            new BreadcrumbItemData(LanguageManager.Instance.Docs_CodeBlock_Title)
+        ],
+        Tags =
+        [
+            new PageMetadataTagViewModel { Text = LinguaObservableString.FromLiteral("AXAML"), Classes = "Ghost" },
+            new PageMetadataTagViewModel { Text = LinguaObservableString.FromLiteral("C#"), Classes = "Ghost" },
+            new PageMetadataTagViewModel { Text = LinguaObservableString.FromLiteral("Bash"), Classes = "Ghost" },
+        ],
+    };
+
     public string AxamlCode { get; } = """
         <!-- A simple Avalonia layout -->
         <StackPanel Spacing="8">
