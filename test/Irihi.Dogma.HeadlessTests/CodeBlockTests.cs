@@ -14,6 +14,24 @@ namespace Irihi.Dogma.HeadlessTests;
 public class CodeBlockTests
 {
     [AvaloniaFact]
+    public void Bash_Renders_Source_And_Highlighting_When_Language_Changes()
+    {
+        const string code = "if true; then echo 'hello'; fi # comment\n";
+        var block = new CodeBlock { Code = code, Language = CodeLanguage.CSharp };
+        var window = new Window { Content = block };
+        window.Show();
+
+        block.Language = CodeLanguage.Bash;
+
+        var text = block.GetVisualDescendants().OfType<SelectableTextBlock>().First();
+        Assert.Equal(code, text.Inlines?.Text);
+        var runs = text.Inlines!.OfType<Run>().ToList();
+        Assert.Contains("token-keyword", runs.First(r => r.Text == "then").Classes);
+        Assert.Contains("token-string", runs.First(r => r.Text == "'hello'").Classes);
+        Assert.Contains("token-comment", runs.First(r => r.Text == "# comment").Classes);
+    }
+
+    [AvaloniaFact]
     public void Inlines_RoundTrip_To_OriginalCode()
     {
         var code = "hello\nworld";

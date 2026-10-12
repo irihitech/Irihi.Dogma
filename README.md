@@ -18,7 +18,7 @@ A set of Avalonia UI controls designed for documentation and demo scenarios.
 ## Features
 
 - **CodeBlock** — syntax-highlighted, selectable, copyable code display control with zero external dependencies
-  - Supports AXAML and C# syntax highlighting
+  - Supports AXAML, C#, and Bash syntax highlighting
   - Built-in light/dark theme support
   - Line numbers and copy button
 - **DocSite** — documentation site scaffolding with `DocPage` and `DocCategory` attributes, plus a source-generator that wires them up automatically
@@ -39,6 +39,8 @@ dotnet add package Irihi.Dogma
                  ShowLineNumbers="True"
                  ShowCopyButton="True" />
 ```
+
+Set `Language="Bash"` to display shell scripts and commands.
 
 ### DocSite
 

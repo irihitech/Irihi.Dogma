@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Irihi.Dogma\Irihi.Dogma.csproj"/>
+    <ProjectReference Include="..\..\demo\Irihi.Dogma.Demo\Irihi.Dogma.Demo.csproj"/>
   </ItemGroup>
 
 </Project>
